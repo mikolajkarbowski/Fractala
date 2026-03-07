@@ -1,0 +1,28 @@
+# Compiled files and build outputs
+target/
+project/target/
+project/project/target/
+*.class
+
+# sbt and crash logs
+*.log
+hs_err_pid*.log
+
+# IDE configuration files
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+# VS Code / Metals
+.metals/
+.bloop/
+.bsp/
+project/metals.sbt
+
+# Caches and temporary files
+.cache/
+.history/
+
+# OS specific files
+.DS_Store
+Thumbs.db
