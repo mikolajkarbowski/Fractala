@@ -1,8 +1,27 @@
-ThisBuild / version := "0.1.0-SNAPSHOT"
-
+ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "3.3.7"
+ThisBuild / organization := "com.fractala"
+
+
+lazy val core = (project in file("core"))
+  .settings(
+    name := "fractala-core",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % "2.10.0"
+    )
+  )
+
+lazy val api = (project in file("api"))
+  .dependsOn(core)
+  .settings(
+    name := "fractala-api",
+    libraryDependencies ++= Seq(
+      "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "1.9.0"
+    )
+  )
 
 lazy val root = (project in file("."))
+  .aggregate(core, api)
   .settings(
-    name := "Fractala"
+    name := "fractala-root"
   )
