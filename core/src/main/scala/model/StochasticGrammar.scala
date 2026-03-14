@@ -3,7 +3,7 @@ package model
 import scala.collection.immutable.HashMap
 import scala.util.Random
 
-class Grammar(private val seed: Long = System.currentTimeMillis()) {
+class StochasticGrammar(private val seed: Long = System.currentTimeMillis()) {
   private val random = new Random(seed)
 
   private var productionsMap = new HashMap[Symbol, List[WeightedSymbolsList]]
@@ -24,7 +24,7 @@ class Grammar(private val seed: Long = System.currentTimeMillis()) {
         val chosen = potentialRightSides.foldLeft((0.0f, Option.empty[List[Symbol]])) {
           case ((acc, found), potentialRightSide) =>
             val newAcc = acc + potentialRightSide.weight
-            
+
             if (found.isEmpty && roll < newAcc) (newAcc, Some(potentialRightSide.symbols))
             else (newAcc, found)
         }._2
