@@ -7,7 +7,8 @@ lazy val core = (project in file("core"))
   .settings(
     name := "fractala-core",
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core" % "2.10.0"
+      "org.typelevel" %% "cats-core" % "2.10.0",
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test
     )
   )
 
@@ -23,5 +24,5 @@ lazy val api = (project in file("api"))
 lazy val root = (project in file("."))
   .aggregate(core, api)
   .settings(
-    name := "fractala-root"
+    name := "fractala-root",
   )
