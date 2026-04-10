@@ -1,5 +1,6 @@
 package com.fractala.core.models
 
+import com.fractala.core.grammar.StochasticGrammar
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

@@ -1,5 +1,6 @@
-package com.fractala.core.models
+package com.fractala.core.grammar
 
+import com.fractala.core.models.Symbol
 import com.fractala.core.traits.Grammar
 
 import scala.collection.immutable.HashMap
