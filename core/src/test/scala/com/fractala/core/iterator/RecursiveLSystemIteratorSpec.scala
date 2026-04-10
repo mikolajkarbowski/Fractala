@@ -1,7 +1,7 @@
 package com.fractala.core.iterator
 
 import com.fractala.core.grammar.StochasticGrammar
-import com.fractala.core.models.Color.{Black, Blue, Red}
+import com.fractala.core.models.Color
 import com.fractala.core.models.Config
 import com.fractala.core.models.DrawingInstruction.{DrawDot, DrawLine}
 import com.fractala.core.models.Symbol.*
@@ -9,6 +9,10 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
+  val Black = Color(0, 0, 0)
+  val Red = Color(1, 0, 0)
+  val Blue = Color(0, 0, 1)
+
   val defaultConfig: Config = Config(
     lineLength = 10.0,
     lineWidth = 2.0,
