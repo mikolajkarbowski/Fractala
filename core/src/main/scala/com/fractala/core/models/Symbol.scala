@@ -35,5 +35,5 @@ enum Symbol:
   case DecrementTurningAngle
   /** A generic variable used in rewriting rules, with a given character name. */
   case Variable(name: Char)
-  /** Change the drawing color to the specified string. */
-  case ColorChange(color: String)
+  /** Change the drawing color. */
+  case ColorChange(color: Color)

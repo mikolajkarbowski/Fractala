@@ -1,4 +1,7 @@
-package com.fractala.core.models
+package com.fractala.core.grammar
+
+import com.fractala.core.models.Symbol
+import com.fractala.core.traits.Grammar
 
 import scala.collection.immutable.HashMap
 import scala.util.Random
@@ -17,7 +20,7 @@ private case class WeightedSymbolsList(weight: Float, symbols: List[Symbol])
  *
  * @param seed The random seed for deterministic results across different executions.
  */
-class StochasticGrammar(private val seed: Long = System.currentTimeMillis()) {
+class StochasticGrammar(private val seed: Long = System.currentTimeMillis()) extends Grammar {
   private val random = new Random(seed)
 
   private var productionsMap = new HashMap[Symbol, List[WeightedSymbolsList]]
@@ -44,7 +47,7 @@ class StochasticGrammar(private val seed: Long = System.currentTimeMillis()) {
    * @param symbol The symbol to apply the production to.
    * @return The list of symbols replacing the input symbol.
    */
-  def applyProduction(symbol: Symbol): List[Symbol] = {
+  override def applyProduction(symbol: Symbol): List[Symbol] = {
     productionsMap.get(symbol) match {
       case Some(potentialRightSides) =>
         val totalWeight = potentialRightSides.map(_.weight).sum

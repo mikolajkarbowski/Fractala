@@ -1,11 +1,6 @@
 package com.fractala.core.models
 
 /**
- * Represents available drawing colors used in the rendering process of the L-System (Lindenmayer system).
+ * Represents a drawing color in RGB format.
  */
-enum Color {
-  case Black
-  case Red
-  case Green
-  case Blue
-}
+case class Color(r: Double, g: Double, b: Double)
