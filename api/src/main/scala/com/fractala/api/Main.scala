@@ -1,5 +1,13 @@
 package com.fractala.api
 
+import cats.effect.{IO, IOApp, ExitCode}
+import com.comcast.ip4s._
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.server.Router
+import sttp.tapir.server.http4s.Http4sServerInterpreter
+import sttp.tapir.swagger.bundle.SwaggerInterpreter
+import org.slf4j.LoggerFactory
+
 import com.fractala.api.controllers.{
   FractalsCatalogController,
   FractalsRenderingController
@@ -9,13 +17,7 @@ import com.fractala.api.services.{
   NdjsonFractalsRenderingService
 }
 
-import cats.effect.{IO, IOApp, ExitCode}
-import com.comcast.ip4s._
-import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.Router
-import sttp.tapir.server.http4s.Http4sServerInterpreter
-import sttp.tapir.swagger.bundle.SwaggerInterpreter
-import org.slf4j.LoggerFactory
+import com.fractala.api.middlewares.RequestLoggerMiddleware
 
 object Main extends IOApp {
 
@@ -47,13 +49,14 @@ object Main extends IOApp {
       allEndpoints ++ swaggerEndpoints
     )
 
-    val httpApp = Router[IO]("/" -> allRoutes).orNotFound
+    val baseHttpApp = Router[IO]("/" -> allRoutes).orNotFound
+    val loggedHttpApp = RequestLoggerMiddleware(baseHttpApp)
 
     EmberServerBuilder
       .default[IO]
       .withHost(ipv4"0.0.0.0")
       .withPort(port"8080")
-      .withHttpApp(httpApp)
+      .withHttpApp(loggedHttpApp)
       .build
       .use(_ => IO.never)
       .as(ExitCode.Success)
