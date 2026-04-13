@@ -1,40 +1,31 @@
 package com.fractala.api
 
 import cats.effect.{IO, IOApp, ExitCode}
-import com.comcast.ip4s._
+import com.comcast.ip4s.{Host, Port}
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Router
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import org.slf4j.LoggerFactory
+import pureconfig.ConfigSource
+import pureconfig.generic.derivation.default.*
 
-import com.fractala.api.controllers.{
-  FractalsCatalogController,
-  FractalsRenderingController
-}
-import com.fractala.api.services.{
-  JsonFractalsCatalogService,
-  NdjsonFractalsRenderingService
-}
-
+import com.fractala.api.controllers.*
+import com.fractala.api.services.*
+import com.fractala.api.services.contracts.*
+import com.fractala.api.models.AppConfig
 import com.fractala.api.middlewares.RequestLoggerMiddleware
 
 object Main extends IOApp {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def run(args: List[String]): IO[ExitCode] = {
-    logger.info("Starting Interactive Fractal API...")
+  private def combineEndpoints() = {
+    given fractalsCatalogService: FractalsCatalogService = new JsonFractalsCatalogService()
+    given fractalsRenderingService: FractalsRenderingService = new NdjsonFractalsRenderingService()
 
-    val fractalsCatalogService = new JsonFractalsCatalogService()
-    val fractalsCatalogController = new FractalsCatalogController(
-      fractalsCatalogService
-    )
-
-    val fractalsRenderingService = new NdjsonFractalsRenderingService()
-    val fractalsRenderingController = new FractalsRenderingController(
-      fractalsRenderingService
-    )
+    val fractalsCatalogController = new FractalsCatalogController()
+    val fractalsRenderingController = new FractalsRenderingController()
 
     val allEndpoints =
       fractalsCatalogController.endpoints ++ fractalsRenderingController.endpoints
@@ -45,20 +36,43 @@ object Main extends IOApp {
       "1.0.0"
     )
 
-    val allRoutes = Http4sServerInterpreter[IO]().toRoutes(
-      allEndpoints ++ swaggerEndpoints
-    )
+    allEndpoints ++ swaggerEndpoints
+  }
 
-    val baseHttpApp = Router[IO]("/" -> allRoutes).orNotFound
-    val loggedHttpApp = RequestLoggerMiddleware(baseHttpApp)
+  override def run(args: List[String]): IO[ExitCode] = {
+    for {
+      _ <- IO(logger.info("Starting Fractala API..."))
 
-    EmberServerBuilder
-      .default[IO]
-      .withHost(ipv4"0.0.0.0")
-      .withPort(port"8080")
-      .withHttpApp(loggedHttpApp)
-      .build
-      .use(_ => IO.never)
-      .as(ExitCode.Success)
+      config <- IO.delay(ConfigSource.default.loadOrThrow[AppConfig])
+      _ = logger.info("Initializing services and controllers...")
+      allEndpoints = combineEndpoints()
+      allRoutes = Http4sServerInterpreter[IO]().toRoutes(allEndpoints)
+      
+      baseHttpApp = Router[IO]("/" -> allRoutes).orNotFound
+      loggedHttpApp = RequestLoggerMiddleware(baseHttpApp)
+
+      host <- IO.fromOption(Host.fromString(config.server.host))(
+                new IllegalArgumentException(s"Invalid host string: ${config.server.host}")
+              )
+      port <- IO.fromOption(Port.fromInt(config.server.port))(
+                new IllegalArgumentException(s"Invalid port number: ${config.server.port}")
+              )
+
+      _ <- EmberServerBuilder
+        .default[IO]
+        .withHost(host)
+        .withPort(port)
+        .withHttpApp(loggedHttpApp)
+        .build
+        .use { server =>
+          val host = server.address.getHostString
+          val displayHost = if (host == "0:0:0:0:0:0:0:0" || host == "0.0.0.0") "localhost" else host
+
+          IO(logger.info(s"Server successfully started and is listening on http://$displayHost:${server.address.getPort}")) *>
+          IO(logger.info(s"Swagger UI available at http://$displayHost:${server.address.getPort}/docs")) *>
+          IO.never
+        }
+
+    } yield ExitCode.Success
   }
 }

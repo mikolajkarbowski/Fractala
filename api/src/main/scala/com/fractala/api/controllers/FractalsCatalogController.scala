@@ -9,7 +9,7 @@ import java.util.UUID
 import io.circe.generic.auto.*
 import sttp.tapir.generic.auto.*
 
-import com.fractala.api.responses.{
+import com.fractala.api.models.responses.{
   FractalResponse,
   PaginatedResponse,
   ErrorResponse
@@ -17,7 +17,7 @@ import com.fractala.api.responses.{
 import com.fractala.api.services.contracts.{FractalsCatalogService}
 
 class FractalsCatalogController(
-    fractalsCatalogService: FractalsCatalogService
+    using catalogService: FractalsCatalogService
 ) {
 
   private val getFractalsEndpoint = endpoint.get
@@ -54,12 +54,12 @@ class FractalsCatalogController(
 
   val getFractalsServerLogic: ServerEndpoint[Any, IO] =
     getFractalsEndpoint.serverLogic { case (limit, offset) =>
-      fractalsCatalogService.getFractals(limit, offset).map(Right(_))
+      catalogService.getFractals(limit, offset).map(Right(_))
     }
 
   val getFractalByIdServerLogic: ServerEndpoint[Any, IO] =
     getFractalByIdEndpoint.serverLogic { id =>
-      fractalsCatalogService.getFractal(id).map {
+      catalogService.getFractal(id).map {
         case Some(fractal) => Right(fractal)
         case None => Left(ErrorResponse(s"Fractal with id $id not found"))
       }

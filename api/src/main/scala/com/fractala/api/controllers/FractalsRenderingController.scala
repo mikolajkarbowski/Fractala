@@ -12,10 +12,10 @@ import sttp.tapir.server.http4s.serverSentEventsBody
 import sttp.capabilities.fs2.Fs2Streams
 
 import com.fractala.api.services.contracts.FractalsRenderingService
-import com.fractala.api.responses.ErrorResponse
-import com.fractala.api.requests.RenderRequest
+import com.fractala.api.models.responses.ErrorResponse
+import com.fractala.api.models.requests.RenderRequest
 
-class FractalsRenderingController(renderingService: FractalsRenderingService) {
+class FractalsRenderingController(using renderingService: FractalsRenderingService) {
 
   private val renderEndpoint = endpoint.post
     .in("fractals" / "render")

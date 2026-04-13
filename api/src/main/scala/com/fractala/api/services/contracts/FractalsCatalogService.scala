@@ -3,7 +3,7 @@ package com.fractala.api.services.contracts
 import cats.effect.IO
 import java.util.UUID
 
-import com.fractala.api.responses.{
+import com.fractala.api.models.responses.{
   FractalResponse,
   PaginatedResponse,
   ErrorResponse

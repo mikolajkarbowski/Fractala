@@ -1,4 +1,4 @@
-package com.fractala.api.responses
+package com.fractala.api.models.responses
 import java.util.UUID
 
 case class FractalResponse(

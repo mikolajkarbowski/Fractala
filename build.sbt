@@ -39,7 +39,8 @@ lazy val api = (project in file("api"))
 
       // Logowanie
       "ch.qos.logback" % "logback-classic" % "1.4.14",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+      "com.github.pureconfig" %% "pureconfig-core" % "0.17.6"
     )
   )
 

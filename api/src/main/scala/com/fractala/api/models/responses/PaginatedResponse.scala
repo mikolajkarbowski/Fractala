@@ -1,4 +1,4 @@
-package com.fractala.api.responses
+package com.fractala.api.models.responses
 
 private case class PaginationMetadata(
     totalCount: Int,
