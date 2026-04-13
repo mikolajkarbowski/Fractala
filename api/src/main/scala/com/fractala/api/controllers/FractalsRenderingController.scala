@@ -35,7 +35,7 @@ class FractalsRenderingController(using renderingService: FractalsRenderingServi
     renderEndpoint.serverLogic { request =>
       renderingService.streamFractalInstructions(request.code).map {
         case None =>
-          Left(ErrorResponse("Failed to parse or process the L-System code."))
+          Left(ErrorResponse.unprocessableEntity("Failed to parse or process the L-System code."))
 
         case Some(instructionStream) =>
           val sseStream = instructionStream.map { instruction =>

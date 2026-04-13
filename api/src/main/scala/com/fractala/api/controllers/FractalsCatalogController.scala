@@ -61,7 +61,7 @@ class FractalsCatalogController(
     getFractalByIdEndpoint.serverLogic { id =>
       catalogService.getFractal(id).map {
         case Some(fractal) => Right(fractal)
-        case None => Left(ErrorResponse(s"Fractal with id $id not found"))
+        case None => Left(ErrorResponse.notFound(s"Fractal with id $id not found"))
       }
     }
 

@@ -29,6 +29,7 @@ lazy val api = (project in file("api"))
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
       "org.http4s" %% "http4s-ember-server" % http4sVersion,
+      "org.http4s" %% "http4s-circe" % "0.23.26",
 
       // JSON (Circe)
       "io.circe" %% "circe-generic" % circeVersion,
