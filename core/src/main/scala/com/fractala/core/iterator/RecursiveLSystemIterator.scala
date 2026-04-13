@@ -11,6 +11,7 @@ private case class State(
   position: DenseVector[Double],
   orientation: DenseVector[Double],
   lineWidth: Double,
+  lineLength: Double,
   turningAngle: Double,
   color: Color)
 
@@ -27,6 +28,7 @@ class RecursiveLSystemIterator(config: Config) extends LSystemIterator(config) {
     DenseVector(0.0, 0.0),
     DenseVector(0.0, 1.0),
     config.lineWidth,
+    config.lineLength,
     config.turningAngle,
     config.startingColor)
   private val stack: List[State] = Nil
@@ -122,12 +124,12 @@ class RecursiveLSystemIterator(config: Config) extends LSystemIterator(config) {
       case Dot =>
         (ctx, Some(DrawDot(state.position(0), state.position(1), state.lineWidth)))
 
-      case ScaleUpLineWidth =>
-        val newState = state.copy(lineWidth = state.lineWidth * config.lineWidthMultiplier)
+      case ScaleUpLineLength =>
+        val newState = state.copy(lineLength = state.lineLength * config.lineLengthMultiplier)
         (ctx.copy(state = newState), None)
 
-      case ScaleDownLineWidth =>
-        val newState = state.copy(lineWidth = state.lineWidth / config.lineWidthMultiplier)
+      case ScaleDownLineLength =>
+        val newState = state.copy(lineLength = state.lineLength / config.lineLengthMultiplier)
         (ctx.copy(state = newState), None)
 
       case IncrementTurningAngle =>

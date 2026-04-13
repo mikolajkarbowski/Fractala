@@ -18,7 +18,7 @@ class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
     lineWidth = 2.0,
     turningAngle = 90.0,
     lineWidthIncrement = 1.0,
-    lineWidthMultiplier = 2.0,
+    lineLengthMultiplier = 2.0,
     turningAngleIncrement = 10.0,
     startingColor = Black
   )
@@ -120,16 +120,12 @@ class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
     val symbols = List(
       IncrementLineWidth, DrawForward, // 2+1 = 3
       DecrementLineWidth, DrawForward, // 3-1 = 2
-      ScaleUpLineWidth, DrawForward,   // 2*2 = 4
-      ScaleDownLineWidth, DrawForward  // 4/2 = 2
     )
     val instructions = iterator.iterate(symbols, emptyGrammar, 0).toList
 
-    instructions should have size 4
+    instructions should have size 2
     instructions(0).asInstanceOf[DrawLine].lineWidth shouldBe 3.0
     instructions(1).asInstanceOf[DrawLine].lineWidth shouldBe 2.0
-    instructions(2).asInstanceOf[DrawLine].lineWidth shouldBe 4.0
-    instructions(3).asInstanceOf[DrawLine].lineWidth shouldBe 2.0
   }
 
   it should "handle TurningAngle modifications" in {
