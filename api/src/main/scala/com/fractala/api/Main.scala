@@ -9,6 +9,7 @@ import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import org.slf4j.LoggerFactory
 import pureconfig.ConfigSource
 import pureconfig.generic.derivation.default.*
+import org.http4s.server.middleware.CORS
 
 import com.fractala.api.controllers.*
 import com.fractala.api.services.*
@@ -51,6 +52,13 @@ object Main extends IOApp {
       baseHttpApp = Router[IO]("/" -> allRoutes).orNotFound
       loggedHttpApp = RequestLoggerMiddleware(baseHttpApp)
 
+      corsHttpApp = CORS.policy
+        .withAllowOriginAll
+        .withAllowCredentials(false)
+        .withAllowMethodsAll
+        .withAllowHeadersAll
+        .apply(loggedHttpApp)
+
       host <- IO.fromOption(Host.fromString(config.server.host))(
                 new IllegalArgumentException(s"Invalid host string: ${config.server.host}")
               )
@@ -62,7 +70,7 @@ object Main extends IOApp {
         .default[IO]
         .withHost(host)
         .withPort(port)
-        .withHttpApp(loggedHttpApp)
+        .withHttpApp(corsHttpApp)
         .build
         .use { server =>
           val host = server.address.getHostString
