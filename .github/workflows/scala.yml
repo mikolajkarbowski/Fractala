@@ -29,6 +29,8 @@ jobs:
         cache: 'sbt'
     - name: Setup SBT
       uses: sbt/setup-sbt@v1
+    - name: Check formatting
+      run: sbt scalafmtCheckAll scalafmtSbtCheck
     - name: Compile code
       run: sbt compile
     - name: Run tests
