@@ -56,7 +56,7 @@ object Symbol {
     ')' -> Symbol.IncrementTurningAngle,
   )
 
-  def fromChar(char: Char) : Option[Symbol] = {
+  def from(char: Char) : Option[Symbol] = {
     symbolMap.get(char).orElse {
       if (char.isLetterOrDigit) {
         Some(Symbol.Variable(char))

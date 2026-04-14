@@ -12,13 +12,13 @@ object Color{
     "blue" -> Color(0.0, 0.0, 1.0),
     "black" -> Color(0.0, 0.0, 0.0),
     "white" -> Color(1.0, 1.0, 1.0),
-    "gray"    -> Color(0.5, 0.5, 0.5),
+    "gray" -> Color(0.5, 0.5, 0.5),
     "brown" -> Color(0.54, 0.27, 0.07),
-    "yellow"  -> Color(1.0, 1.0, 0.0),
-    "orange"  -> Color(1.0, 0.65, 0.0),
-    "purple"  -> Color(0.5, 0.0, 0.5),
-    "pink"    -> Color(1.0, 0.75, 0.8)
+    "yellow" -> Color(1.0, 1.0, 0.0),
+    "orange" -> Color(1.0, 0.65, 0.0),
+    "purple" -> Color(0.5, 0.0, 0.5),
+    "pink" -> Color(1.0, 0.75, 0.8)
   )
 
-  def fromString(name: String) : Option[Color] = namedColors.get(name.toLowerCase)
+  def from(name: String) : Option[Color] = namedColors.get(name.toLowerCase)
 }

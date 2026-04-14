@@ -21,7 +21,6 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
     val result = DslParser.parseSymbols("F [ ? X ]")
 
     result.isLeft shouldBe true
-    result.left.getOrElse("") should include("Error parsing symbols")
   }
 
   "DslParser.parseRule" should "parse a deterministic rule without weights" in {
@@ -63,7 +62,7 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
       }
     """
 
-    val result = DslParser.parseDSL(input)
+    val result = DslParser.parseDsl(input)
     result.isRight shouldBe true
 
     // Extract the successful result for assertions
@@ -72,7 +71,7 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
     val default = Config();
     // 1. Check Config overrides and defaults
     dsl.config.turningAngle shouldBe 25.5
-    dsl.config.startingColor shouldBe Color.fromString("brown").get
+    dsl.config.startingColor shouldBe Color.from("brown").get
     dsl.config.lineLength shouldBe 15.0
     dsl.config.lineWidth shouldBe default.lineWidth
 
@@ -93,7 +92,7 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
       }
     """
 
-    val result = DslParser.parseDSL(input)
+    val result = DslParser.parseDsl(input)
     result.isRight shouldBe true
 
     val dsl = result.getOrElse(fail("Parsing failed"))

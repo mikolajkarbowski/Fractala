@@ -2,6 +2,7 @@ package com.fractala.core.parser
 
 import fastparse.*
 import fastparse.ScalaWhitespace._
+import fastparse.internal.Util
 import com.fractala.core.models.{Color, Config, Rule, Symbol}
 import com.fractala.core.traits.Parser
 
@@ -21,8 +22,8 @@ object DslParser extends Parser {
   ).!.map(_.toDouble)
 
   private def colorString[$: P]: P[Color] = P(CharIn("a-zA-Z").repX(1).!)
-    .filter(c => Color.fromString(c).isDefined)
-    .map(c => Color.fromString(c).get)
+    .filter(c => Color.from(c).isDefined)
+    .map(c => Color.from(c).get)
 
   private def doubleField[$: P](name: String): P[(String, Double)] = P(IgnoreCase(name) ~ ":" ~/ number).map(v => (name.toLowerCase, v))
 
@@ -51,8 +52,8 @@ object DslParser extends Parser {
   private def colorChangeSymbol[$: P]: P[Symbol.ColorChange] = P("<" ~ colorString ~ ">").map(Symbol.ColorChange.apply)
 
   private def otherSymbol[$: P]: P[Symbol] = P(CharPred(c => !c.isWhitespace && c != '{' && c != '}').!)
-    .filter(str => Symbol.fromChar(str.head).isDefined)
-    .map(str => Symbol.fromChar(str.head).get)
+    .filter(str => Symbol.from(str.head).isDefined)
+    .map(str => Symbol.from(str.head).get)
 
   private def lSystemSymbol[$: P]: P[Symbol] = P(colorChangeSymbol | otherSymbol)
 
@@ -87,28 +88,28 @@ object DslParser extends Parser {
       DslResult(configOpt.getOrElse(Config()), axiom, rules)
   }
 
-  def parseDSL(input: String): Either[String, DslResult] = {
+  def parseDsl(input: String): Either[ParseError, DslResult] = {
     parse(input, dslSystem(_)) match {
       case Parsed.Success(result, _) => Right(result)
-      case failure: Parsed.Failure => Left(failure.trace().longAggregateMsg)
+      case failure: Parsed.Failure => Left(ParseError.from(failure))
     }
   }
 
-  def parseSymbols(input: String): Either[String, List[Symbol]] = {
+  def parseSymbols(input: String): Either[ParseError, List[Symbol]] = {
     def symbolsEntry[$: P]: P[List[Symbol]] = P(Start ~ symbolList ~ End)
 
     parse(input, symbolsEntry(_)) match {
       case Parsed.Success(result, _) => Right(result)
-      case failure: Parsed.Failure => Left(s"Error parsing symbols: ${failure.trace().longAggregateMsg}")
+      case failure: Parsed.Failure => Left(ParseError.from(failure))
     }
   }
 
-  def parseRule(input: String): Either[String, Rule] = {
+  def parseRule(input: String): Either[ParseError, Rule] = {
     def ruleEntry[$: P]: P[Rule] = P(Start ~ rule ~ End)
 
     parse(input, ruleEntry(_)) match {
       case Parsed.Success(result, _) => Right(result)
-      case failure: Parsed.Failure => Left(s"Error parsing rule: ${failure.trace().longAggregateMsg}")
+      case failure: Parsed.Failure => Left(ParseError.from(failure))
     }
   }
 }

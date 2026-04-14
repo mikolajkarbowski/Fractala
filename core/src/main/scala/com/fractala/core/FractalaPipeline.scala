@@ -30,7 +30,7 @@ object FractalaPipeline {
    */
   def generate(dslCode: String, iterations: Int, seed: Long): Either[String, Iterator[DrawingInstruction]] = {
 
-    DslParser.parseDSL(dslCode) match {
+    DslParser.parseDsl(dslCode) match {
       case Left(errorMsg) =>
         Left(s"L-System syntactic error:\n$errorMsg")
 
