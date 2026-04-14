@@ -10,6 +10,7 @@ lazy val core = (project in file("core"))
       "org.typelevel" %% "cats-core" % "2.10.0",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "org.scalanlp" %% "breeze" % "2.1.0",
+      "com.lihaoyi" %% "fastparse" % "3.1.1"
     )
   )
 

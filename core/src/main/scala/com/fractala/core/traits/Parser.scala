@@ -1,26 +1,38 @@
 package com.fractala.core.traits
 
-import com.fractala.core.grammar.StochasticGrammar
-import com.fractala.core.models.Symbol
+import com.fractala.core.models.{Rule, Symbol}
+import com.fractala.core.parser.DslResult
 
 /**
  * Defines the contract for parsing text inputs into L-System components.
- * It handles the conversion of raw strings into symbols and the registration of production rules.
+ * It supports parsing full custom DSL documents as well as extracting individual elements like rules and symbols.
  */
 trait Parser {
-  /**
-   * Parses a sequence of characters into a list of L-System symbols.
-   *
-   * @param input The raw string containing L-System characters (e.g., "F[+F]<red>F").
-   * @return A list of parsed [[Symbol]] objects representing the input string.
-   */
-  def parseSymbols(input: String) : List[Symbol]
 
   /**
-   * Parses a string representing a production rule and adds it to the specified grammar.
+   * Parses a complete L-System DSL document.
+   * This includes extracting the configuration block, the starting axiom, and the production rules.
    *
-   * @param ruleDef The string definition of the rule, including optional weights (e.g., "F (0.33) -> F[+F]").
-   * @param grammar The [[StochasticGrammar]] instance where the parsed rule will be registered.
+   * @param input The raw string containing the full DSL definition (Config, Axiom, and Rules).
+   * @return An `Either` containing the parsed [[DslResult]] on success, or a detailed error message string on failure.
    */
-  def parseAndAddRule(ruleDef: String, grammar: StochasticGrammar): Unit
+  def parseDSL(input: String): Either[String, DslResult]
+
+  /**
+   * Parses a sequence of characters into a list of L-System symbols.
+   * This is particularly useful for parsing standalone axioms or individual symbol strings outside a full DSL document.
+   *
+   * @param input The raw string containing L-System characters and tags (e.g., "F [ + X ] <red> F").
+   * @return An `Either` containing a list of parsed [[Symbol]] objects on success, or an error message string on failure.
+   */
+  def parseSymbols(input: String): Either[String, List[Symbol]]
+
+  /**
+   * Parses a single production rule definition.
+   * Supports deterministic rules as well as stochastic rules with weights.
+   *
+   * @param input The string definition of the rule (e.g., "F (0.50) -> F [ + F ]").
+   * @return An `Either` containing the parsed [[Rule]] object on success, or an error message string on failure.
+   */
+  def parseRule(input: String): Either[String, Rule]
 }
