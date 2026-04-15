@@ -8,40 +8,26 @@ import com.fractala.core.traits.LSystemIterator
 import com.fractala.core.models.{Config, Color, Symbol}
 import com.fractala.core.grammar.StochasticGrammar
 import com.fractala.core.iterator.RecursiveLSystemIterator
+import com.fractala.core.FractalaPipeline
 import com.fractala.api.services.contracts.FractalsRenderingService
 
 class NdjsonFractalsRenderingService extends FractalsRenderingService {
   override def streamFractalInstructions(
       code: String
   ): IO[Option[Stream[IO, DrawingInstruction]]] = {
+    val seed = System.currentTimeMillis()
 
-    // for demonstration purposes,
-    // we will parse 'code' into config, grammar and level here...
-    val config: Config = Config(
-      lineLength = 10.0,
-      lineWidth = 2.0,
-      turningAngle = 90.0,
-      lineWidthIncrement = 1.0,
-      lineWidthMultiplier = 2.0,
-      turningAngleIncrement = 10.0,
-      startingColor = Color(0, 0, 0)
-    )
+    FractalaPipeline.generate(code, seed) match {
+      case Right(iterator) =>
+        val fs2Stream: Stream[IO, DrawingInstruction] =
+          Stream
+            .fromIterator[IO](iterator, chunkSize = 8)
+            .evalTap(_ => IO.cede)
 
-    val emptyGrammar = StochasticGrammar()
+        IO.pure(Some(fs2Stream))
 
-    val recursiveIterator = RecursiveLSystemIterator(config)
-    val iterator =
-      recursiveIterator.iterate(
-        List(Symbol.MoveForward, Symbol.DrawForward),
-        emptyGrammar,
-        0
-      )
-
-    val fs2Stream: Stream[IO, DrawingInstruction] =
-      Stream
-        .fromIterator[IO](iterator, chunkSize = 8)
-        .evalTap(_ => IO.cede)
-
-    IO.pure(Some(fs2Stream))
+      case Left(errorMessage) =>
+        IO.raiseError(new IllegalArgumentException(errorMessage))
+    }
   }
 }

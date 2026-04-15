@@ -33,11 +33,14 @@ class FractalsRenderingController(using renderingService: FractalsRenderingServi
 
   val renderServerLogic: ServerEndpoint[Fs2Streams[IO], IO] =
     renderEndpoint.serverLogic { request =>
-      renderingService.streamFractalInstructions(request.code).map {
-        case None =>
-          Left(ErrorResponse.unprocessableEntity("Failed to parse or process the L-System code."))
-
-        case Some(instructionStream) =>
+      renderingService.streamFractalInstructions(request.code).attempt.map {
+        case Left(error: IllegalArgumentException) =>
+          Left(ErrorResponse.badRequest(error.getMessage))
+        case Left(error) =>
+          Left(ErrorResponse.internalServerError(s"An unexpected error occurred: ${error.getMessage}"))
+        case Right(None) =>
+          Left(ErrorResponse.unprocessableEntity("Failed to process the L-System code."))
+        case Right(Some(instructionStream)) =>
           val sseStream = instructionStream.map { instruction =>
             ServerSentEvent(
               data = Some(instruction.asJson.noSpaces),

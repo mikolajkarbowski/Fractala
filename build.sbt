@@ -2,6 +2,10 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "3.3.7"
 ThisBuild / organization := "com.fractala"
 
+val tapirVersion = "1.9.9"
+val http4sVersion = "0.23.25"
+val circeVersion = "0.14.6"
+
 lazy val core = (project in file("core"))
   .settings(
     name := "fractala-core",

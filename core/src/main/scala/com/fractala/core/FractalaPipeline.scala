@@ -22,14 +22,11 @@ object FractalaPipeline {
     *   The raw string containing the L-System definition in the custom DSL.
     * @param iterations
     *   The number of generations (recursion depth) to evaluate the grammar.
-    * @param seed
-    *   The random seed used for resolving stochastic (probabilistic) rules. Providing the same seed guarantees
-    *   reproducible fractal generation.
     * @return
     *   An `Either` yielding a descriptive error string on the `Left` if the DSL contains syntax errors, or a lazy
     *   `Iterator` of [[DrawingInstruction]]s on the `Right` upon absolute success.
     */
-  def generate(dslCode: String, iterations: Int, seed: Long): Either[String, Iterator[DrawingInstruction]] = {
+  def generate(dslCode: String, seed: Long): Either[String, Iterator[DrawingInstruction]] = {
 
     DslParser.parseDsl(dslCode) match {
       case Left(errorMsg) =>
@@ -43,7 +40,7 @@ object FractalaPipeline {
         }
 
         val iterator = new RecursiveLSystemIterator(dslResult.config)
-        val instructions = iterator.iterate(dslResult.axiom, grammar, iterations)
+        val instructions = iterator.iterate(dslResult.axiom, grammar, dslResult.config.maxIterations)
 
         Right(instructions)
     }
