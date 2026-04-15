@@ -62,36 +62,41 @@ object Main extends IOApp {
       config <- IO.delay(ConfigSource.default.loadOrThrow[AppConfig])
       _ = logger.info("Initializing services and controllers...")
       allEndpoints = combineEndpoints()
-      
-      serverOptions = Http4sServerOptions.customiseInterceptors[IO]
+
+      serverOptions = Http4sServerOptions
+        .customiseInterceptors[IO]
         .exceptionHandler(ExceptionHandler.pure[IO] { ctx =>
-          Some(ValuedEndpointOutput(
-            jsonBody[ErrorResponse].and(sttp.tapir.statusCode(StatusCode.InternalServerError)),
-            ErrorResponse.internalServerError("An unexpected error occurred. Please try again later.")
-          ))
-        })
-        .decodeFailureHandler(DefaultDecodeFailureHandler(
-          respond = ctx => DefaultDecodeFailureHandler.respond(ctx),
-          failureMessage = ctx => DefaultDecodeFailureHandler.FailureMessages.failureMessage(ctx),
-          response = (statusCode, _, msg) => ValuedEndpointOutput(
-            jsonBody[ErrorResponse].and(sttp.tapir.statusCode(statusCode)),
-            ErrorResponse(
-              title = "Validation Error", 
-              status = statusCode.code, 
-              detail = msg
+          Some(
+            ValuedEndpointOutput(
+              jsonBody[ErrorResponse].and(sttp.tapir.statusCode(StatusCode.InternalServerError)),
+              ErrorResponse.internalServerError("An unexpected error occurred. Please try again later.")
             )
           )
-        ))
+        })
+        .decodeFailureHandler(
+          DefaultDecodeFailureHandler(
+            respond = ctx => DefaultDecodeFailureHandler.respond(ctx),
+            failureMessage = ctx => DefaultDecodeFailureHandler.FailureMessages.failureMessage(ctx),
+            response = (statusCode, _, msg) =>
+              ValuedEndpointOutput(
+                jsonBody[ErrorResponse].and(sttp.tapir.statusCode(statusCode)),
+                ErrorResponse(
+                  title = "Validation Error",
+                  status = statusCode.code,
+                  detail = msg
+                )
+              )
+          )
+        )
         .options
 
       allRoutes = Http4sServerInterpreter[IO](serverOptions).toRoutes(allEndpoints)
-      
+
       baseHttpApp = Router[IO]("/" -> allRoutes).orNotFound
-      
+
       loggedHttpApp = RequestLoggerMiddleware(baseHttpApp)
 
-      corsHttpApp = CORS.policy
-        .withAllowOriginAll
+      corsHttpApp = CORS.policy.withAllowOriginAll
         .withAllowCredentials(false)
         .withAllowMethodsAll
         .withAllowHeadersAll
@@ -104,11 +109,11 @@ object Main extends IOApp {
       throttledApp = Throttle(bucket, _ => rateLimitResponse)(corsHttpApp)
 
       host <- IO.fromOption(Host.fromString(config.server.host))(
-                new IllegalArgumentException(s"Invalid host string: ${config.server.host}")
-              )
+        new IllegalArgumentException(s"Invalid host string: ${config.server.host}")
+      )
       port <- IO.fromOption(Port.fromInt(config.server.port))(
-                new IllegalArgumentException(s"Invalid port number: ${config.server.port}")
-              )
+        new IllegalArgumentException(s"Invalid port number: ${config.server.port}")
+      )
 
       _ <- EmberServerBuilder
         .default[IO]
@@ -120,9 +125,12 @@ object Main extends IOApp {
           val host = server.address.getHostString
           val displayHost = if (host == "0:0:0:0:0:0:0:0" || host == "0.0.0.0") "localhost" else host
 
-          IO(logger.info(s"Server successfully started and is listening on http://$displayHost:${server.address.getPort}")) *>
-          IO(logger.info(s"Swagger UI available at http://$displayHost:${server.address.getPort}/docs")) *>
-          IO.never
+          IO(
+            logger
+              .info(s"Server successfully started and is listening on http://$displayHost:${server.address.getPort}")
+          ) *>
+            IO(logger.info(s"Swagger UI available at http://$displayHost:${server.address.getPort}/docs")) *>
+            IO.never
         }
 
     } yield ExitCode.Success

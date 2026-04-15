@@ -7,11 +7,7 @@ import scala.io.Source
 import java.util.UUID
 
 import com.fractala.api.services.contracts.FractalsCatalogService
-import com.fractala.api.models.responses.{
-  FractalResponse,
-  PaginatedResponse,
-  ErrorResponse
-}
+import com.fractala.api.models.responses.{FractalResponse, PaginatedResponse, ErrorResponse}
 
 class JsonFractalsCatalogService extends FractalsCatalogService {
 
@@ -19,7 +15,7 @@ class JsonFractalsCatalogService extends FractalsCatalogService {
     val jsonString = Source.fromResource("fractals.json").mkString
     decode[List[FractalResponse]](jsonString) match {
       case Right(fractals) => fractals.sortBy(_.name)
-      case Left(error)     =>
+      case Left(error) =>
         throw new RuntimeException(
           s"Failed to parse fractals catalog: ${error.getMessage}"
         )

@@ -3,11 +3,7 @@ package com.fractala.api.services.contracts
 import cats.effect.IO
 import java.util.UUID
 
-import com.fractala.api.models.responses.{
-  FractalResponse,
-  PaginatedResponse,
-  ErrorResponse
-}
+import com.fractala.api.models.responses.{FractalResponse, PaginatedResponse, ErrorResponse}
 
 trait FractalsCatalogService {
   def getFractal(id: UUID): IO[Option[FractalResponse]]
