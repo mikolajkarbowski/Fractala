@@ -2,19 +2,14 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "3.3.7"
 ThisBuild / organization := "com.fractala"
 
-Global / cancelable := true
-
-val tapirVersion = "1.9.9"
-val http4sVersion = "0.23.25"
-val circeVersion = "0.14.6"
-
 lazy val core = (project in file("core"))
   .settings(
     name := "fractala-core",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % "2.10.0",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-      "org.scalanlp" %% "breeze" % "2.1.0"
+      "org.scalanlp" %% "breeze" % "2.1.0",
+      "com.lihaoyi" %% "fastparse" % "3.1.1"
     )
   )
 
