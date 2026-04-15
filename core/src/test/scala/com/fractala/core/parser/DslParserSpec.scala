@@ -18,7 +18,6 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
       Symbol.DrawForward
     )
 
-    // We expect a Right containing our list
     DslParser.parseSymbols(input) shouldBe Right(expected)
   }
 
@@ -57,6 +56,7 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
         turningAngle: 25.5
         startingColor: brown
         LINELENGTH: 15.0
+        maxIterations: 10
       }
 
       Axiom: X
@@ -70,20 +70,18 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
     val result = DslParser.parseDsl(input)
     result.isRight shouldBe true
 
-    // Extract the successful result for assertions
     val dsl = result.getOrElse(fail("Parsing the full DSL failed unexpectedly"))
 
     val default = Config();
-    // 1. Check Config overrides and defaults
+
     dsl.config.turningAngle shouldBe 25.5
     dsl.config.startingColor shouldBe Color.from("brown").get
     dsl.config.lineLength shouldBe 15.0
     dsl.config.lineWidth shouldBe default.lineWidth
+    dsl.config.maxIterations shouldBe 10
 
-    // 2. Check Axiom
     dsl.axiom shouldBe List(Symbol.Variable('X'))
 
-    // 3. Check Rules
     dsl.rules should have size 2
     dsl.rules.head.predecessor shouldBe Symbol.Variable('X')
     dsl.rules(1).weight shouldBe 0.5
@@ -102,7 +100,25 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
 
     val dsl = result.getOrElse(fail("Parsing failed"))
 
-    // The config should exactly match a freshly instantiated Config()
     dsl.config shouldBe Config()
+  }
+
+  it should "fail if a config field is assigned more than once" in {
+    val input =
+      """Config {
+            lineLength: 10.0
+            lineLength: 20.0
+          }
+          Axiom: F
+          Rules { F -> F }"""
+
+    val result = DslParser.parseDsl(input)
+
+    result match {
+      case Left(error) =>
+        error.line shouldBe 4
+      case Right(_) =>
+        fail("Parser should have failed due to duplicate config fields")
+    }
   }
 }

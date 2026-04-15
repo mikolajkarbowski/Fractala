@@ -16,6 +16,8 @@ package com.fractala.core.models
   *   The amount to add/subtract when changing the turning angle.
   * @param startingColor
   *   The initial color for drawing.
+  * @param maxIterations
+  *   The limit for recursion depth
   */
 case class Config(
     lineLength: Double = 10.0,
@@ -24,5 +26,6 @@ case class Config(
     lineWidthIncrement: Double = 1.0,
     lineLengthMultiplier: Double = 2.0,
     turningAngleIncrement: Double = 15.0,
-    startingColor: Color = Color(1.0, 1.0, 1.0)
+    startingColor: Color = Color(1.0, 1.0, 1.0),
+    maxIterations: Int = 4
 );

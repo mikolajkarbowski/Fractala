@@ -20,6 +20,10 @@ object DslParser extends Parser {
     CharIn("0-9").repX(1) ~~ ("." ~~ CharIn("0-9").repX(1)).?
   ).!.map(_.toDouble)
 
+  private def integer[$: P]: P[Int] = P(
+    CharIn("0-9").repX(1).!
+  ).map(_.toInt)
+
   private def colorString[$: P]: P[Color] = P(CharIn("a-zA-Z").repX(1).!)
     .filter(c => Color.from(c).isDefined)
     .map(c => Color.from(c).get)
@@ -27,31 +31,39 @@ object DslParser extends Parser {
   private def doubleField[$: P](name: String): P[(String, Double)] =
     P(IgnoreCase(name) ~ ":" ~/ number).map(v => (name.toLowerCase, v))
 
+  private def intField[$: P](name: String): P[(String, Int)] =
+    P(IgnoreCase(name) ~ ":" ~/ integer).map(v => (name.toLowerCase, v))
+
   private def colorField[$: P](name: String): P[(String, Color)] =
     P(IgnoreCase(name) ~ ":" ~/ colorString).map(v => (name.toLowerCase, v))
 
   private def configField[$: P]: P[(String, Any)] = P(
     doubleField("lineLength") | doubleField("lineWidth") | doubleField("turningAngle") |
       doubleField("lineWidthIncrement") | doubleField("lineLengthMultiplier") | doubleField("turningAngleIncrement") |
-      colorField("startingColor")
+      colorField("startingColor") | intField("maxIterations")
   )
 
-  private def configBlock[$: P]: P[Config] = P(IgnoreCase("Config") ~ "{" ~/ configField.rep ~ "}").map { fields =>
-    val map = fields.toMap
-    val default = Config()
-    Config(
-      lineLength = map.getOrElse("lineLength".toLowerCase, default.lineLength).asInstanceOf[Double],
-      lineWidth = map.getOrElse("lineWidth".toLowerCase, default.lineWidth).asInstanceOf[Double],
-      turningAngle = map.getOrElse("turningAngle".toLowerCase, default.turningAngle).asInstanceOf[Double],
-      lineWidthIncrement =
-        map.getOrElse("lineWidthIncrement".toLowerCase, default.lineWidthIncrement).asInstanceOf[Double],
-      lineLengthMultiplier =
-        map.getOrElse("lineLengthMultiplier".toLowerCase, default.lineLengthMultiplier).asInstanceOf[Double],
-      turningAngleIncrement =
-        map.getOrElse("turningAngleIncrement".toLowerCase, default.turningAngleIncrement).asInstanceOf[Double],
-      startingColor = map.getOrElse("startingColor".toLowerCase, default.startingColor).asInstanceOf[Color]
-    )
-  }
+  private def configBlock[$: P]: P[Config] = P(IgnoreCase("Config") ~ "{" ~/ configField.rep ~ "}")
+    .filter { fields =>
+      fields.map(_._1).distinct.size == fields.size
+    }
+    .map { fields =>
+      val map = fields.toMap
+      val default = Config()
+      Config(
+        lineLength = map.getOrElse("lineLength".toLowerCase, default.lineLength).asInstanceOf[Double],
+        lineWidth = map.getOrElse("lineWidth".toLowerCase, default.lineWidth).asInstanceOf[Double],
+        turningAngle = map.getOrElse("turningAngle".toLowerCase, default.turningAngle).asInstanceOf[Double],
+        lineWidthIncrement =
+          map.getOrElse("lineWidthIncrement".toLowerCase, default.lineWidthIncrement).asInstanceOf[Double],
+        lineLengthMultiplier =
+          map.getOrElse("lineLengthMultiplier".toLowerCase, default.lineLengthMultiplier).asInstanceOf[Double],
+        turningAngleIncrement =
+          map.getOrElse("turningAngleIncrement".toLowerCase, default.turningAngleIncrement).asInstanceOf[Double],
+        startingColor = map.getOrElse("startingColor".toLowerCase, default.startingColor).asInstanceOf[Color],
+        maxIterations = map.getOrElse("maxIterations".toLowerCase, default.maxIterations).asInstanceOf[Int]
+      )
+    }
 
   private def colorChangeSymbol[$: P]: P[Symbol.ColorChange] = P("<" ~ colorString ~ ">").map(Symbol.ColorChange.apply)
 
