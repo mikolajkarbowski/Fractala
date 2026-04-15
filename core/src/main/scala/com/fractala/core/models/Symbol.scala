@@ -35,10 +35,10 @@ enum Symbol:
   case Dot
 
   /** Scale up the line width by a multiplication factor. */
-  case ScaleUpLineWidth
+  case ScaleUpLineLength
 
   /** Scale down the line width by a division factor. */
-  case ScaleDownLineWidth
+  case ScaleDownLineLength
 
   /** Increase the turning angle by a constant. */
   case IncrementTurningAngle
@@ -51,3 +51,32 @@ enum Symbol:
 
   /** Change the drawing color. */
   case ColorChange(color: Color)
+
+object Symbol {
+  private val symbolMap: Map[Char, Symbol] = Map(
+    'F' -> Symbol.DrawForward,
+    'f' -> Symbol.MoveForward,
+    '+' -> Symbol.TurnLeft,
+    '-' -> Symbol.TurnRight,
+    '|' -> Symbol.ReverseDirection,
+    '[' -> Symbol.StackPush,
+    ']' -> Symbol.StackPop,
+    '#' -> Symbol.IncrementLineWidth,
+    '!' -> Symbol.DecrementLineWidth,
+    '@' -> Symbol.Dot,
+    '>' -> Symbol.ScaleUpLineLength,
+    '<' -> Symbol.ScaleDownLineLength,
+    '(' -> Symbol.DecrementTurningAngle,
+    ')' -> Symbol.IncrementTurningAngle
+  )
+
+  def from(char: Char): Option[Symbol] = {
+    symbolMap.get(char).orElse {
+      if (char.isLetterOrDigit) {
+        Some(Symbol.Variable(char))
+      } else {
+        None
+      }
+    }
+  }
+}
