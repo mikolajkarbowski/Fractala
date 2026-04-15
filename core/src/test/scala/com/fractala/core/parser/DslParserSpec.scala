@@ -9,8 +9,13 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
   "DslParser.parseSymbols" should "parse a sequence of symbols including colors" in {
     val input = "F [ + X ] <red> F"
     val expected = List(
-      Symbol.DrawForward, Symbol.StackPush, Symbol.TurnLeft, Symbol.Variable('X'), Symbol.StackPop,
-      Symbol.ColorChange(Color(1.0, 0.0, 0.0)), Symbol.DrawForward
+      Symbol.DrawForward,
+      Symbol.StackPush,
+      Symbol.TurnLeft,
+      Symbol.Variable('X'),
+      Symbol.StackPop,
+      Symbol.ColorChange(Color(1.0, 0.0, 0.0)),
+      Symbol.DrawForward
     )
 
     // We expect a Right containing our list

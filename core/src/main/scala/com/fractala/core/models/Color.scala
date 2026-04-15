@@ -1,11 +1,10 @@
 package com.fractala.core.models
 
-/**
- * Represents a drawing color in RGB format.
- */
+/** Represents a drawing color in RGB format.
+  */
 case class Color(r: Double, g: Double, b: Double)
 
-object Color{
+object Color {
   private val namedColors: Map[String, Color] = Map(
     "red" -> Color(1.0, 0.0, 0.0),
     "green" -> Color(0.0, 1.0, 0.0),
@@ -20,5 +19,5 @@ object Color{
     "pink" -> Color(1.0, 0.75, 0.8)
   )
 
-  def from(name: String) : Option[Color] = namedColors.get(name.toLowerCase)
+  def from(name: String): Option[Color] = namedColors.get(name.toLowerCase)
 }

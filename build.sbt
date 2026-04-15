@@ -1,7 +1,6 @@
-ThisBuild / version      := "0.1.0-SNAPSHOT"
+ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "3.3.7"
 ThisBuild / organization := "com.fractala"
-
 
 lazy val core = (project in file("core"))
   .settings(
@@ -26,5 +25,5 @@ lazy val api = (project in file("api"))
 lazy val root = (project in file("."))
   .aggregate(core, api)
   .settings(
-    name := "fractala-root",
+    name := "fractala-root"
   )

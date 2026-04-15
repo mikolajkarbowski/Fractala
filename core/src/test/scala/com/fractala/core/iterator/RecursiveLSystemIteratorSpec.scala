@@ -35,8 +35,7 @@ class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
     val instructions = iterator.iterate(List(DrawForward), emptyGrammar, 0).toList
 
     instructions should have size 1
-    instructions.head should matchPattern {
-      case DrawLine(0.0, 0.0, 0.0, 10.0, 2.0, Black) =>
+    instructions.head should matchPattern { case DrawLine(0.0, 0.0, 0.0, 10.0, 2.0, Black) =>
     }
   }
 
@@ -47,8 +46,7 @@ class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
     instructions should have size 1
     // After MoveForward, position is (0, 10), orientation is (0, 1)
     // Next DrawForward starts from (0, 10) and goes to (0, 20)
-    instructions.head should matchPattern {
-      case DrawLine(0.0, 10.0, 0.0, 20.0, 2.0, Black) =>
+    instructions.head should matchPattern { case DrawLine(0.0, 10.0, 0.0, 20.0, 2.0, Black) =>
     }
   }
 
@@ -100,8 +98,7 @@ class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
     instructions should have size 1
     // After MoveForward, pos is (0, 10). Pop restores it to (0, 0).
     // DrawForward should go from (0, 0) to (0, 10).
-    instructions.head should matchPattern {
-      case DrawLine(0.0, 0.0, 0.0, 10.0, 2.0, Black) =>
+    instructions.head should matchPattern { case DrawLine(0.0, 0.0, 0.0, 10.0, 2.0, Black) =>
     }
   }
 
@@ -110,16 +107,17 @@ class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
     val instructions = iterator.iterate(List(MoveForward, Dot), emptyGrammar, 0).toList
 
     instructions should have size 1
-    instructions.head should matchPattern {
-      case DrawDot(0.0, 10.0, 2.0) =>
+    instructions.head should matchPattern { case DrawDot(0.0, 10.0, 2.0) =>
     }
   }
 
   it should "handle LineWidth modifications" in {
     val iterator = RecursiveLSystemIterator(defaultConfig)
     val symbols = List(
-      IncrementLineWidth, DrawForward, // 2+1 = 3
-      DecrementLineWidth, DrawForward, // 3-1 = 2
+      IncrementLineWidth,
+      DrawForward, // 2+1 = 3
+      DecrementLineWidth,
+      DrawForward // 3-1 = 2
     )
     val instructions = iterator.iterate(symbols, emptyGrammar, 0).toList
 
@@ -158,7 +156,8 @@ class RecursiveLSystemIteratorSpec extends AnyFlatSpec with Matchers {
 
   it should "handle ColorChange" in {
     val iterator = RecursiveLSystemIterator(defaultConfig)
-    val instructions = iterator.iterate(List(ColorChange(Red), DrawForward, ColorChange(Blue), DrawForward), emptyGrammar, 0).toList
+    val instructions =
+      iterator.iterate(List(ColorChange(Red), DrawForward, ColorChange(Blue), DrawForward), emptyGrammar, 0).toList
 
     instructions should have size 2
     instructions(0).asInstanceOf[DrawLine].color shouldBe Red

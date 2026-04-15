@@ -6,15 +6,14 @@ import fastparse.internal.Util
 import com.fractala.core.models.{Color, Config, Rule, Symbol}
 import com.fractala.core.traits.Parser
 
-/**
- * A concrete implementation of the [[Parser]] trait using the FastParse library.
- * * This object provides the actual parsing logic to convert a custom L-System Domain Specific Language (DSL)
- * into domain models. It is designed to be highly resilient and user-friendly, supporting:
- * - Implicit whitespace and newline handling.
- * - Single-line comments (using `//`) and multi-line comments (using `/* ... */`).
- * - Case-insensitive configuration keys.
- * - Automatic fallback to default [[Config]] values for omitted fields.
- */
+/** A concrete implementation of the [[Parser]] trait using the FastParse library. * This object provides the actual
+  * parsing logic to convert a custom L-System Domain Specific Language (DSL) into domain models. It is designed to be
+  * highly resilient and user-friendly, supporting:
+  *   - Implicit whitespace and newline handling.
+  *   - Single-line comments (using `//`) and multi-line comments (using `/* ... */`).
+  *   - Case-insensitive configuration keys.
+  *   - Automatic fallback to default [[Config]] values for omitted fields.
+  */
 object DslParser extends Parser {
 
   private def number[$: P]: P[Double] = P(
@@ -25,9 +24,11 @@ object DslParser extends Parser {
     .filter(c => Color.from(c).isDefined)
     .map(c => Color.from(c).get)
 
-  private def doubleField[$: P](name: String): P[(String, Double)] = P(IgnoreCase(name) ~ ":" ~/ number).map(v => (name.toLowerCase, v))
+  private def doubleField[$: P](name: String): P[(String, Double)] =
+    P(IgnoreCase(name) ~ ":" ~/ number).map(v => (name.toLowerCase, v))
 
-  private def colorField[$: P](name: String): P[(String, Color)] = P(IgnoreCase(name) ~ ":" ~/ colorString).map(v => (name.toLowerCase, v))
+  private def colorField[$: P](name: String): P[(String, Color)] =
+    P(IgnoreCase(name) ~ ":" ~/ colorString).map(v => (name.toLowerCase, v))
 
   private def configField[$: P]: P[(String, Any)] = P(
     doubleField("lineLength") | doubleField("lineWidth") | doubleField("turningAngle") |
@@ -42,9 +43,12 @@ object DslParser extends Parser {
       lineLength = map.getOrElse("lineLength".toLowerCase, default.lineLength).asInstanceOf[Double],
       lineWidth = map.getOrElse("lineWidth".toLowerCase, default.lineWidth).asInstanceOf[Double],
       turningAngle = map.getOrElse("turningAngle".toLowerCase, default.turningAngle).asInstanceOf[Double],
-      lineWidthIncrement = map.getOrElse("lineWidthIncrement".toLowerCase, default.lineWidthIncrement).asInstanceOf[Double],
-      lineLengthMultiplier = map.getOrElse("lineLengthMultiplier".toLowerCase, default.lineLengthMultiplier).asInstanceOf[Double],
-      turningAngleIncrement = map.getOrElse("turningAngleIncrement".toLowerCase, default.turningAngleIncrement).asInstanceOf[Double],
+      lineWidthIncrement =
+        map.getOrElse("lineWidthIncrement".toLowerCase, default.lineWidthIncrement).asInstanceOf[Double],
+      lineLengthMultiplier =
+        map.getOrElse("lineLengthMultiplier".toLowerCase, default.lineLengthMultiplier).asInstanceOf[Double],
+      turningAngleIncrement =
+        map.getOrElse("turningAngleIncrement".toLowerCase, default.turningAngleIncrement).asInstanceOf[Double],
       startingColor = map.getOrElse("startingColor".toLowerCase, default.startingColor).asInstanceOf[Color]
     )
   }
@@ -72,12 +76,12 @@ object DslParser extends Parser {
   ).map { case (lhs, weightOpt, rhs) =>
     val rule = Rule(
       predecessor = lhs,
-      successor = rhs,
+      successor = rhs
     )
 
     weightOpt match {
       case Some(w) => rule.copy(weight = w)
-      case None => rule
+      case None    => rule
     }
   }
 
@@ -91,7 +95,7 @@ object DslParser extends Parser {
   def parseDsl(input: String): Either[ParseError, DslResult] = {
     parse(input, dslSystem(_)) match {
       case Parsed.Success(result, _) => Right(result)
-      case failure: Parsed.Failure => Left(ParseError.from(failure))
+      case failure: Parsed.Failure   => Left(ParseError.from(failure))
     }
   }
 
@@ -100,7 +104,7 @@ object DslParser extends Parser {
 
     parse(input, symbolsEntry(_)) match {
       case Parsed.Success(result, _) => Right(result)
-      case failure: Parsed.Failure => Left(ParseError.from(failure))
+      case failure: Parsed.Failure   => Left(ParseError.from(failure))
     }
   }
 
@@ -109,7 +113,7 @@ object DslParser extends Parser {
 
     parse(input, ruleEntry(_)) match {
       case Parsed.Success(result, _) => Right(result)
-      case failure: Parsed.Failure => Left(ParseError.from(failure))
+      case failure: Parsed.Failure   => Left(ParseError.from(failure))
     }
   }
 }

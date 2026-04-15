@@ -8,21 +8,22 @@ import com.fractala.core.models.{Color, Config, DrawingInstruction, Symbol}
 import com.fractala.core.traits.{Grammar, LSystemIterator}
 
 private case class State(
-  position: DenseVector[Double],
-  orientation: DenseVector[Double],
-  lineWidth: Double,
-  lineLength: Double,
-  turningAngle: Double,
-  color: Color)
+    position: DenseVector[Double],
+    orientation: DenseVector[Double],
+    lineWidth: Double,
+    lineLength: Double,
+    turningAngle: Double,
+    color: Color
+)
 
 private case class RenderContext(state: State, stack: List[State] = Nil)
 
-/**
- * A recursive implementation of an L-System iterator.
- * It expands symbols lazily and converts them into drawing instructions based on the turtle graphics state.
- *
- * @param config The L-System configuration.
- */
+/** A recursive implementation of an L-System iterator. It expands symbols lazily and converts them into drawing
+  * instructions based on the turtle graphics state.
+  *
+  * @param config
+  *   The L-System configuration.
+  */
 class RecursiveLSystemIterator(config: Config) extends LSystemIterator(config) {
   private val state = State(
     DenseVector(0.0, 0.0),
@@ -30,7 +31,8 @@ class RecursiveLSystemIterator(config: Config) extends LSystemIterator(config) {
     config.lineWidth,
     config.lineLength,
     config.turningAngle,
-    config.startingColor)
+    config.startingColor
+  )
   private val stack: List[State] = Nil
 
   override def iterate(axiom: List[Symbol], grammar: Grammar, level: Int): Iterator[DrawingInstruction] = {
@@ -42,8 +44,8 @@ class RecursiveLSystemIterator(config: Config) extends LSystemIterator(config) {
         handleSymbol(currentCtx, config, symbol)
     }
 
-    stateAndInstructions.flatMap {
-      case (_, instruction) => instruction
+    stateAndInstructions.flatMap { case (_, instruction) =>
+      instruction
     }
   }
 
@@ -57,7 +59,11 @@ class RecursiveLSystemIterator(config: Config) extends LSystemIterator(config) {
       }
   }
 
-  private def handleSymbol(ctx: RenderContext, config: Config, symbol: Symbol): (RenderContext, Option[DrawingInstruction]) = {
+  private def handleSymbol(
+      ctx: RenderContext,
+      config: Config,
+      symbol: Symbol
+  ): (RenderContext, Option[DrawingInstruction]) = {
     val state = ctx.state
 
     symbol match {
@@ -67,9 +73,12 @@ class RecursiveLSystemIterator(config: Config) extends LSystemIterator(config) {
         val newState = state.copy(position = endPos)
 
         val instruction = DrawLine(
-          startPos(0), startPos(1),
-          endPos(0), endPos(1),
-          newState.lineWidth, newState.color
+          startPos(0),
+          startPos(1),
+          endPos(0),
+          endPos(1),
+          newState.lineWidth,
+          newState.color
         )
 
         (ctx.copy(state = newState), Some(instruction))
