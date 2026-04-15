@@ -17,11 +17,11 @@ class NdjsonFractalsRenderingService extends FractalsRenderingService {
   ): IO[Option[Stream[IO, DrawingInstruction]]] = {
     val seed = System.currentTimeMillis()
 
-    FractalaPipeline.generate(code, seed) match {
+    IO.blocking(FractalaPipeline.generate(code, seed)).flatMap {
       case Right(iterator) =>
         val fs2Stream: Stream[IO, DrawingInstruction] =
           Stream
-            .fromIterator[IO](iterator, chunkSize = 8)
+            .fromBlockingIterator[IO](iterator, chunkSize = 8)
             .evalTap(_ => IO.cede)
 
         IO.pure(Some(fs2Stream))
