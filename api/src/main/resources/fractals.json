@@ -1,0 +1,16 @@
+[
+  {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "Sierpinski Triangle",
+    "description": "A classic deterministic fractal. The code is just an example.",
+    "code": "A\nA -> B-A-B\nB -> A+B+A",
+    "imageUrl": "https://example.com/sierpinski.png"
+  },
+  {
+    "id": "123e4567-e89b-12d3-a456-426614174001",
+    "name": "Dragon Curve",
+    "description": "Also known as the Heighway dragon. The code is just an example.",
+    "code": "FX\nX -> X+YF+\nY -> -FX-Y",
+    "imageUrl": "https://example.com/dragon.png"
+  }
+]

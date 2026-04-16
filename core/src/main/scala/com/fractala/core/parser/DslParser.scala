@@ -1,7 +1,7 @@
 package com.fractala.core.parser
 
 import fastparse.*
-import fastparse.ScalaWhitespace._
+import fastparse.ScalaWhitespace.*
 import fastparse.internal.Util
 import com.fractala.core.models.{Color, Config, Rule, Symbol}
 import com.fractala.core.traits.Parser
