@@ -20,8 +20,9 @@ object FractalaPipeline {
     *
     * @param dslCode
     *   The raw string containing the L-System definition in the custom DSL.
-    * @param iterations
-    *   The number of generations (recursion depth) to evaluate the grammar.
+    * @param seed
+    *   The random seed used for resolving stochastic (probabilistic) rules. Providing the same seed guarantees
+    *   reproducible fractal generation.
     * @return
     *   An `Either` yielding a descriptive error string on the `Left` if the DSL contains syntax errors, or a lazy
     *   `Iterator` of [[DrawingInstruction]]s on the `Right` upon absolute success.

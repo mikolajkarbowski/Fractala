@@ -1,19 +1,20 @@
 package com.fractala.api.controllers
 
-import cats.effect.IO
-import sttp.tapir._
-import sttp.tapir.json.circe._
-import sttp.tapir.generic.auto._
+import cats.Functor
+import cats.syntax.functor.*
+import sttp.tapir.*
+import sttp.tapir.Validator
+import sttp.tapir.json.circe.*
+import sttp.tapir.generic.auto.*
 import sttp.tapir.server.ServerEndpoint
 import java.util.UUID
 import io.circe.generic.auto.*
-import sttp.tapir.generic.auto.*
 
 import com.fractala.api.models.responses.{FractalResponse, PaginatedResponse, ErrorResponse}
-import com.fractala.api.services.contracts.{FractalsCatalogService}
+import com.fractala.api.services.contracts.FractalsCatalogService
 
-class FractalsCatalogController(using
-    catalogService: FractalsCatalogService
+class FractalsCatalogController[F[_]: Functor](using
+    catalogService: FractalsCatalogService[F]
 ) {
 
   private val getFractalsEndpoint = endpoint.get
@@ -22,6 +23,8 @@ class FractalsCatalogController(using
       query[Int]("limit")
         .description("Maximum number of items to return")
         .default(10)
+        .validate(Validator.min(1))
+        .validate(Validator.max(100))
     )
     .in(query[Int]("offset").description("Number of items to skip").default(0))
     .out(
@@ -48,12 +51,12 @@ class FractalsCatalogController(using
     .name("Get Fractal by ID")
     .description("Retrieves a single fractal example by its unique UUID.")
 
-  val getFractalsServerLogic: ServerEndpoint[Any, IO] =
+  val getFractalsServerLogic: ServerEndpoint[Any, F] =
     getFractalsEndpoint.serverLogic { case (limit, offset) =>
       catalogService.getFractals(limit, offset).map(Right(_))
     }
 
-  val getFractalByIdServerLogic: ServerEndpoint[Any, IO] =
+  val getFractalByIdServerLogic: ServerEndpoint[Any, F] =
     getFractalByIdEndpoint.serverLogic { id =>
       catalogService.getFractal(id).map {
         case Some(fractal) => Right(fractal)
@@ -61,7 +64,7 @@ class FractalsCatalogController(using
       }
     }
 
-  val endpoints: List[ServerEndpoint[Any, IO]] = List(
+  val endpoints: List[ServerEndpoint[Any, F]] = List(
     getFractalsServerLogic,
     getFractalByIdServerLogic
   )

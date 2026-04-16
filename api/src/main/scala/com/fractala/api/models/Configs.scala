@@ -1,6 +1,5 @@
 package com.fractala.api.models
 
-import pureconfig.ConfigSource
 import pureconfig.ConfigReader
 import pureconfig.generic.derivation.default.*
 

@@ -36,32 +36,34 @@ object Main extends IOApp {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  private def combineEndpoints() = {
-    given fractalsCatalogService: FractalsCatalogService = new JsonFractalsCatalogService()
-    given fractalsRenderingService: FractalsRenderingService = new NdjsonFractalsRenderingService()
-
-    val fractalsCatalogController = new FractalsCatalogController()
-    val fractalsRenderingController = new FractalsRenderingController()
-
-    val allEndpoints =
-      fractalsCatalogController.endpoints ++ fractalsRenderingController.endpoints
-
-    val swaggerEndpoints = SwaggerInterpreter().fromServerEndpoints[IO](
-      allEndpoints,
-      "Fractala API",
-      "1.0.0"
-    )
-
-    allEndpoints ++ swaggerEndpoints
-  }
-
   override def run(args: List[String]): IO[ExitCode] = {
     for {
       _ <- IO(logger.info("Starting Fractala API..."))
 
       config <- IO.delay(ConfigSource.default.loadOrThrow[AppConfig])
       _ = logger.info("Initializing services and controllers...")
-      allEndpoints = combineEndpoints()
+
+      catalogService <- JsonFractalsCatalogService.make[IO]
+      renderingService = new NdjsonFractalsRenderingService[IO]()
+
+      allEndpoints = {
+        given FractalsCatalogService[IO] = catalogService
+        given FractalsRenderingService[IO] = renderingService
+
+        val fractalsCatalogController = new FractalsCatalogController[IO]()
+        val fractalsRenderingController = new FractalsRenderingController[IO]()
+
+        val baseEndpoints =
+          fractalsCatalogController.endpoints ++ fractalsRenderingController.endpoints
+
+        val swaggerEndpoints = SwaggerInterpreter().fromServerEndpoints[IO](
+          baseEndpoints,
+          "Fractala API",
+          "1.0.0"
+        )
+
+        baseEndpoints ++ swaggerEndpoints
+      }
 
       serverOptions = Http4sServerOptions
         .customiseInterceptors[IO]

@@ -1,7 +1,5 @@
 package com.fractala.api.models.responses
 
-import sttp.tapir.generic.auto.*
-
 /** Standard RFC 7807 (Problem Details for HTTP APIs)
   */
 case class ErrorResponse(

@@ -5,8 +5,8 @@ import fs2.Stream
 
 import com.fractala.core.models.DrawingInstruction
 
-trait FractalsRenderingService {
+trait FractalsRenderingService[F[_]] {
   def streamFractalInstructions(
       code: String
-  ): IO[Option[Stream[IO, DrawingInstruction]]]
+  ): F[Option[Stream[F, DrawingInstruction]]]
 }

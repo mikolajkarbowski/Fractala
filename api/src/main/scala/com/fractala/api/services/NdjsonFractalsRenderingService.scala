@@ -1,6 +1,7 @@
 package com.fractala.api.services
 
-import cats.effect.IO
+import cats.effect.{Async, Sync}
+import cats.syntax.all.*
 import fs2.Stream
 
 import com.fractala.core.models.DrawingInstruction
@@ -11,23 +12,24 @@ import com.fractala.core.iterator.RecursiveLSystemIterator
 import com.fractala.core.FractalaPipeline
 import com.fractala.api.services.contracts.FractalsRenderingService
 
-class NdjsonFractalsRenderingService extends FractalsRenderingService {
+class NdjsonFractalsRenderingService[F[_]: Async] extends FractalsRenderingService[F] {
+
   override def streamFractalInstructions(
       code: String
-  ): IO[Option[Stream[IO, DrawingInstruction]]] = {
+  ): F[Option[Stream[F, DrawingInstruction]]] = {
     val seed = System.currentTimeMillis()
 
-    IO.blocking(FractalaPipeline.generate(code, seed)).flatMap {
+    Sync[F].blocking(FractalaPipeline.generate(code, seed)).flatMap {
       case Right(iterator) =>
-        val fs2Stream: Stream[IO, DrawingInstruction] =
+        val fs2Stream: Stream[F, DrawingInstruction] =
           Stream
-            .fromBlockingIterator[IO](iterator, chunkSize = 8)
-            .evalTap(_ => IO.cede)
+            .fromBlockingIterator[F](iterator, chunkSize = 32)
+            .evalTap(_ => Async[F].cede)
 
-        IO.pure(Some(fs2Stream))
+        Sync[F].pure(Some(fs2Stream))
 
       case Left(errorMessage) =>
-        IO.raiseError(new IllegalArgumentException(errorMessage))
+        Sync[F].raiseError(new IllegalArgumentException(errorMessage))
     }
   }
 }

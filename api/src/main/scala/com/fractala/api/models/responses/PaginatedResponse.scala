@@ -24,7 +24,7 @@ object PaginatedResponse {
     val safeLimit = if (limit > 0) limit else 10
     val safeOffset = if (offset >= 0) offset else 0
     val totalCount = allItems.size
-    val paginatedItems = allItems.drop(safeOffset).take(safeLimit)
+    val paginatedItems = allItems.slice(safeOffset, safeOffset + safeLimit)
     val totalPages = math.ceil(totalCount.toDouble / safeLimit).toInt
     val hasNextPage = (safeOffset + safeLimit) < totalCount
 
