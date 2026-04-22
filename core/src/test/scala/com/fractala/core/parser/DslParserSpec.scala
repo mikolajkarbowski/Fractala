@@ -8,17 +8,20 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
 
   "DslParser.parseSymbols" should "parse a sequence of symbols including colors" in {
     val input = "F [ + X ] <red> F"
+
+    val palette = Map("red" -> Color(1.0, 0, 0))
+
     val expected = List(
       Symbol.DrawForward,
       Symbol.StackPush,
       Symbol.TurnLeft,
       Symbol.Variable('X'),
       Symbol.StackPop,
-      Symbol.ColorChange(Color(1.0, 0.0, 0.0)),
+      Symbol.ColorChange(palette("red")),
       Symbol.DrawForward
     )
 
-    DslParser.parseSymbols(input) shouldBe Right(expected)
+    DslParser.parseSymbols(input, palette) shouldBe Right(expected)
   }
 
   it should "return Left with an error message on invalid symbols" in {
@@ -40,13 +43,16 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
 
   it should "parse a stochastic rule with weights and unicode arrows" in {
     val input = "F (0.33) → <green> F"
+
+    val palette = Map("green" -> Color(0, 1.0, 0))
+
     val expected = Rule(
       predecessor = Symbol.DrawForward,
       weight = 0.33,
-      successor = List(Symbol.ColorChange(Color(0.0, 1.0, 0.0)), Symbol.DrawForward)
+      successor = List(Symbol.ColorChange(palette("green")), Symbol.DrawForward)
     )
 
-    DslParser.parseRule(input) shouldBe Right(expected)
+    DslParser.parseRule(input, palette) shouldBe Right(expected)
   }
 
   "DslParser.parseDSL" should "parse a complete L-System definition ignoring comments and layout" in {
@@ -54,9 +60,13 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
       // My Beautiful Fern Configuration
       Config {
         turningAngle: 25.5
-        startingColor: brown
+        startingColor: green
         LINELENGTH: 15.0
         maxIterations: 10
+      }
+
+      Colors {
+        green: 0, 1.0, 0
       }
 
       Axiom: X
@@ -75,7 +85,7 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
     val default = Config();
 
     dsl.config.turningAngle shouldBe 25.5
-    dsl.config.startingColor shouldBe Color.from("brown").get
+    dsl.config.startingColor shouldBe Color(0, 1.0, 0)
     dsl.config.lineLength shouldBe 15.0
     dsl.config.lineWidth shouldBe default.lineWidth
     dsl.config.maxIterations shouldBe 10
