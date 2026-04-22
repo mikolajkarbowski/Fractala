@@ -56,7 +56,8 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
   }
 
   "DslParser.parseDSL" should "parse a complete L-System definition ignoring comments and layout" in {
-    val input = """
+    val input =
+      """
       // My Beautiful Fern Configuration
       Config {
         turningAngle: 25.5
@@ -97,8 +98,104 @@ class DslParserSpec extends AnyFlatSpec with Matchers {
     dsl.rules(1).weight shouldBe 0.5
   }
 
+  "DslParser" should "successfully parse the 'Beautiful Fractal' example from the README" in {
+    val input =
+      """
+          // My Beautiful Fern
+          Config {
+            lineLength: 10.0
+            lineWidth: 2.0
+            turningAngle: 25.0
+            startingColor: stem
+            maxIterations: 5
+          }
+
+          Colors {
+            stem: 0.54, 0.27, 0.07  // Brown
+            leaf: 0.0, 1.0, 0.0     // Green
+          }
+
+          Axiom: X
+
+          Rules {
+            // X acts as a structural placeholder generating branches
+            X -> <stem> F [ + X ] [ - X ] + F
+
+            // F draws the actual lines and grows over time
+            F -> F F <leaf> [ + F ]
+          }
+        """
+
+    val result = DslParser.parseDsl(input)
+
+    result.isRight shouldBe true
+
+    val dsl = result.getOrElse(fail("Parsing failed"))
+
+    dsl.config.lineLength shouldBe 10.0
+    dsl.config.lineWidth shouldBe 2.0
+    dsl.config.turningAngle shouldBe 25.0
+    dsl.config.maxIterations shouldBe 5
+    dsl.config.startingColor shouldBe Color(0.54, 0.27, 0.07)
+
+    dsl.axiom shouldBe List(Symbol.Variable('X'))
+
+    dsl.rules should have size 2
+    dsl.rules.head.predecessor shouldBe Symbol.Variable('X')
+    dsl.rules.head.successor.head shouldBe Symbol.ColorChange(Color(0.54, 0.27, 0.07))
+
+    dsl.rules(1).predecessor shouldBe Symbol.DrawForward
+    dsl.rules(1).successor should contain(Symbol.ColorChange(Color(0.0, 1.0, 0.0)))
+  }
+
+  it should "successfully parse the 'Stochastic Magic Tree' example highlighting order-independence" in {
+    val input =
+      """
+          Axiom: F
+
+          // Notice the weights in parentheses (e.g., 0.33 means 33% chance)
+          Rules {
+            F (0.33) -> F [ + <bloom> F ] F
+            F (0.33) -> F [ - <bloom> F ] F
+            F (0.34) -> F <wood> F
+          }
+
+          Colors {
+            wood: 0.6, 0.4, 0.2
+            bloom: 1.0, 0.4, 0.7
+          }
+
+          // Config fields are case-insensitive and optional (defaults apply if omitted)
+          CONFIG {
+            turningAngle: 22.5
+            maxIterations: 4
+          }
+        """
+
+    val result = DslParser.parseDsl(input)
+
+    result match {
+      case Left(error) => fail(s"Parsing failed with error: $error")
+      case Right(dsl) =>
+        dsl.config.turningAngle shouldBe 22.5
+        dsl.config.maxIterations shouldBe 4
+
+        dsl.config.lineLength shouldBe Config().lineLength
+
+        dsl.axiom shouldBe List(Symbol.DrawForward)
+
+        dsl.rules should have size 3
+        val totalWeight = dsl.rules.map(_.weight).sum
+        totalWeight shouldBe 1.0 +- 0.001
+
+        val bloomColor = Color(1.0, 0.4, 0.7)
+        dsl.rules.head.successor should contain(Symbol.ColorChange(bloomColor))
+    }
+  }
+
   it should "inject the default Config if the Config block is completely missing" in {
-    val input = """
+    val input =
+      """
       Axiom: F
       Rules {
         F -> F + F
