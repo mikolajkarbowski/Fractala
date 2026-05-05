@@ -1,6 +1,70 @@
 # Fractala
 
----
+Fractala is a comprehensive platform for defining, generating, and visualizing fractals using a custom L-System Domain-Specific Language (DSL). The project features a robust core engine, a REST API, and an interactive web frontend.
+
+## Stack
+- **Language:** [Scala 3.3.7](https://www.scala-lang.org/)
+- **Build Tool:** [sbt](https://www.scala-sbt.org/)
+- **Core Engine:**
+  - [Cats](https://typelevel.org/cats/) - Functional programming abstractions
+  - [Breeze](https://github.com/scalanlp/breeze) - Numerical processing and linear algebra
+  - [FastParse](https://com-lihaoyi.github.io/fastparse/) - DSL parsing
+- **API Server:**
+  - [Tapir](https://tapir.softwaremill.com/) - Typed API endpoints
+  - [Http4s](https://http4s.org/) - HTTP server (Ember)
+  - [Circe](https://circe.github.io/circe/) - JSON library
+  - [PureConfig](https://pureconfig.github.io/pureconfig/) - Configuration management
+- **Frontend:**
+  - [Scala.js](https://www.scala-js.org/) - Scala to JavaScript compiler
+  - [Scalatags](https://github.com/com-lihaoyi/scalatags) - Type-safe HTML/CSS construction
+  - [scalajs-dom](https://scala-js.github.io/scala-js-dom/) - DOM API for Scala.js
+
+## Requirements
+- **Java JDK 11 or higher** (JDK 17 recommended)
+- **sbt 1.x**
+
+## Project Structure
+- `core/`: The heart of the project. Contains the L-System iteration logic, the DSL parser, and the drawing instruction generation.
+- `api/`: A RESTful service that exposes the core logic via HTTP. Includes Swagger UI for API exploration.
+- `frontend/`: A web-based user interface that allows users to write DSL code and visualize the resulting fractals in real-time.
+
+## Setup & Run
+
+### 1. API Server
+To start the API server:
+```bash
+sbt "project api" run
+```
+The application uses **PureConfig** for configuration management. Default settings are in `api/src/main/resources/application.conf`.
+
+### 2. Frontend
+To compile the frontend:
+```bash
+sbt "project frontend" fastOptJS
+```
+After compilation, open `frontend/src/main/resources/index.html` in your web browser to use the interface.
+
+**TODO:** Add a development server or automated asset pipeline for the frontend.
+
+## Environment Variables
+The API server configuration can be overridden using the following environment variables:
+- `SERVER_HOST`: The host address to bind to (default: `0.0.0.0`).
+- `SERVER_PORT`: The port number to listen on (default: `9000`).
+
+Example (Linux/macOS):
+```bash
+SERVER_PORT=8080 sbt "project api" run
+```
+
+Example (Windows PowerShell):
+```powershell
+$env:SERVER_PORT="8080"; sbt "project api" run
+```
+
+## Tests
+The project uses [ScalaTest](https://www.scalatest.org/) for unit testing.
+- To run all tests across all modules: `sbt test`
+- To run tests for the core module only: `sbt "project core" test`
 
 ## Writing Fractals (The DSL)
 
@@ -79,19 +143,5 @@ CONFIG {
 }
 ```
 
-## Running the API server
-
-To run the server, use:
-
-```ps1
-sbt "project api" run
-```
-
-The application uses **PureConfig** for configuration management. You can find the default settings in: `api/src/main/resources/application.conf`.
-
-To override settings without changing the file, you can use environment variables:
-
-**Windows (PowerShell):**
-```powershell
-$env:SERVER_PORT="9000"; sbt "project api" run
-```
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
