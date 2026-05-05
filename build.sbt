@@ -44,10 +44,25 @@ lazy val api = (project in file("api"))
     )
   )
 
+lazy val frontend = (project in file("frontend"))
+  .enablePlugins(ScalaJSPlugin)
+  .settings(
+    name := "fractala-frontend",
+    scalaJSUseMainModuleInitializer := true,
+    libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scalajs-dom" % "2.8.0",
+      "com.lihaoyi" %%% "scalatags" % "0.12.0",
+      "io.circe" %%% "circe-core" % "0.14.6",
+      "io.circe" %%% "circe-generic" % "0.14.6",
+      "io.circe" %%% "circe-parser" % "0.14.6"
+    ),
+  )
+
 lazy val root = (project in file("."))
   .aggregate(
     core,
-    api
+    api,
+    frontend
   )
   .settings(
     name := "fractala-root"
