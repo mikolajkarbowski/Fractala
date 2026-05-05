@@ -32,7 +32,7 @@ class FractalApiService(apiUrl: String):
     val request = FractalRequest(code)
     val requestBody = request.asJson.noSpaces
 
-    dom.console.log(s"[API] Wysyłanie zapytania na: $apiUrl")
+    dom.console.log(s"[API] Sending request to: $apiUrl")
     dom.console.log(s"[API] Body: $requestBody")
 
     val fetchOptions = js.Dynamic.literal(
@@ -49,13 +49,13 @@ class FractalApiService(apiUrl: String):
       .flatMap { response =>
         if (!response.ok) {
           response.text().toFuture.map { errorText =>
-            val errorMsg = s"Błąd serwera (${response.status}): $errorText"
-            dom.console.error(s"[API ERROR] $errorMsg")
+            val errorMsg = s"[API ERROR] Server Error (${response.status}): $errorText"
+            dom.console.error(errorMsg)
             onError(errorMsg)
             promise.failure(new Exception(errorMsg))
           }
         } else {
-          dom.console.log("[API] Połączono ze strumieniem. Oczekuję na dane...")
+          dom.console.log("[API] Connected to stream. Awaiting data...")
 
           val reader = response.body.getReader()
           val decoder = new TextDecoder("utf-8")
@@ -87,7 +87,7 @@ class FractalApiService(apiUrl: String):
                     }
                   }
 
-                  dom.console.log(s"[API] Strumień zakończony. Narysowano $instructionCount instrukcji.")
+                  dom.console.log(s"[API] Stream finished. Drawn $instructionCount instructions.")
                   onComplete()
                   promise.success(())
                   Future.successful(())
@@ -112,9 +112,9 @@ class FractalApiService(apiUrl: String):
                               instructionCount += 1
                               onInstruction(instruction)
                             case Left(error) =>
-                              dom.console.error(s"[JSON PARSE ERROR] Błąd parsowania: $jsonStr", error.getMessage)
+                              dom.console.error(s"[JSON PARSE ERROR] Error parsing: $jsonStr", error.getMessage)
                             case null =>
-                              dom.console.error(s"[JSON PARSE ERROR] Błąd parsowania")
+                              dom.console.error(s"[JSON PARSE ERROR] Error parsing")
                         }
                       }
                     }
@@ -125,8 +125,8 @@ class FractalApiService(apiUrl: String):
                 }
               }
               .recoverWith { case error =>
-                val errorMsg = s"Błąd podczas czytania strumienia: ${error.getMessage}"
-                dom.console.error(s"[STREAM ERROR] $errorMsg")
+                val errorMsg = s"[STREAM ERROR] Error reading stream: ${error.getMessage}"
+                dom.console.error(errorMsg)
                 onError(errorMsg)
                 promise.failure(error)
                 Future.failed(error)
@@ -136,7 +136,7 @@ class FractalApiService(apiUrl: String):
         }
       }
       .recoverWith { case error =>
-        val errorMsg = s"Błąd połączenia: ${error.getMessage}"
+        val errorMsg = s"[FETCH ERROR] Connection error: ${error.getMessage}"
         dom.console.error(s"[FETCH ERROR] $errorMsg")
         onError(errorMsg)
         promise.failure(error)
