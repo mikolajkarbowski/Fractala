@@ -32,7 +32,7 @@ object FractalApp:
     document.body.innerHTML = ""
     document.body.appendChild(appContainer)
 
-    dom.console.log("Aplikacja załadowana")
+    dom.console.log("App initialized successfully.")
 
   private def createCanvas(): Canvas =
     val canvas = document.createElement("canvas").asInstanceOf[Canvas]

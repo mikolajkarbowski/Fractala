@@ -174,7 +174,7 @@ Rules {
   private val sendButton = button(
     id := "sendBtn",
     cls := "btn-primary",
-    "Wyślij do API (Generuj)",
+    "Send to API (Generate)",
     onclick := { (_: dom.Event) => handleRender() }
   ).render
 
@@ -183,44 +183,46 @@ Rules {
   ).render
 
   private val presetButtons = div(
-    cls := "preset-buttons",
-    h3("Przykłady:"),
-    button(
-      cls := "btn-preset",
-      "Autumn Weed",
-      onclick := { (_: dom.Event) => loadPreset("autumnWeed") }
-    ),
-    button(
-      cls := "btn-preset",
-      "Crystal Tree",
-      onclick := { (_: dom.Event) => loadPreset("crystalTree") }
-    ),
-    button(
-      cls := "btn-preset",
-      "Weeping Willow",
-      onclick := { (_: dom.Event) => loadPreset("weepingWillow") }
-    ),
-    button(
-      cls := "btn-preset",
-      "Advanced Baobab",
-      onclick := { (_: dom.Event) => loadPreset("advancedBaobab") }
-    ),
-    button(
-      cls := "btn-preset",
-      "Neon Hilbert Maze",
-      onclick := { (_: dom.Event) => loadPreset("neonHilbertMaze") }
-    ),
-    button(
-      cls := "btn-preset",
-      "Spring Blossom",
-      onclick := { (_: dom.Event) => loadPreset("springBlossom") }
+    h3("Examples:"),
+    div(
+      cls := "preset-buttons",
+      button(
+        cls := "btn-preset",
+        "Autumn Weed",
+        onclick := { (_: dom.Event) => loadPreset("autumnWeed") }
+      ),
+      button(
+        cls := "btn-preset",
+        "Crystal Tree",
+        onclick := { (_: dom.Event) => loadPreset("crystalTree") }
+      ),
+      button(
+        cls := "btn-preset",
+        "Weeping Willow",
+        onclick := { (_: dom.Event) => loadPreset("weepingWillow") }
+      ),
+      button(
+        cls := "btn-preset",
+        "Advanced Baobab",
+        onclick := { (_: dom.Event) => loadPreset("advancedBaobab") }
+      ),
+      button(
+        cls := "btn-preset",
+        "Neon Hilbert Maze",
+        onclick := { (_: dom.Event) => loadPreset("neonHilbertMaze") }
+      ),
+      button(
+        cls := "btn-preset",
+        "Spring Blossom",
+        onclick := { (_: dom.Event) => loadPreset("springBlossom") }
+      )
     )
   ).render
 
   // Layout panelu lewego
   val leftPanel: Div = div(
     cls := "left-panel",
-    h2("Edytor L-Script (Live SSE)"),
+    h2("Fractala Editor"),
     errorDiv,
     inputArea,
     presetButtons,
@@ -236,9 +238,9 @@ Rules {
     statusDiv.textContent = ""
     isRendering = true
     sendButton.disabled = true
-    sendButton.textContent = "Rysowanie..."
+    sendButton.textContent = "Drawing..."
 
-    dom.console.log("=== ROZPOCZĘCIE RYSOWANIA ===")
+    dom.console.log("=== STARTING RENDERING ===")
 
     renderer.clear()
 
@@ -250,7 +252,7 @@ Rules {
         instructionCount += 1
         renderer.drawInstruction(instruction)
         if (instructionCount % 100 == 0) {
-          statusDiv.textContent = s"Narysowano $instructionCount instrukcji..."
+          statusDiv.textContent = s"Drawn $instructionCount instructions..."
         }
       },
       onError = { error =>
@@ -259,7 +261,7 @@ Rules {
         resetButton()
       },
       onComplete = { () =>
-        statusDiv.textContent = s"Gotowe! Narysowano $instructionCount instrukcji."
+        statusDiv.textContent = s"Done! Drawn $instructionCount instructions."
         resetButton()
       }
     )
@@ -267,7 +269,7 @@ Rules {
   private def resetButton(): Unit =
     isRendering = false
     sendButton.disabled = false
-    sendButton.textContent = "Wyślij do API (Generuj)"
+    sendButton.textContent = "Send to API (Generate)"
 
   private def loadPreset(presetName: String): Unit =
     val code = presetName match
@@ -294,4 +296,4 @@ Rules {
 
     inputArea.value = code
     errorDiv.textContent = ""
-    statusDiv.textContent = s"Załadowano preset: $presetName"
+    statusDiv.textContent = s"Loaded preset: $presetName"
