@@ -33,3 +33,9 @@ Thumbs.db
 # Logs
 logs/
 *.gz
+
+# Scala.js
+*.sjsir
+
+# Node
+node_modules/
