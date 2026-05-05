@@ -9,22 +9,22 @@ object Color:
   given Decoder[Color] = deriveDecoder[Color]
 
 case class DrawLine(
-                     xFrom: Double,
-                     yFrom: Double,
-                     xTo: Double,
-                     yTo: Double,
-                     color: Color,
-                     lineWidth: Double
-                   )
+    xFrom: Double,
+    yFrom: Double,
+    xTo: Double,
+    yTo: Double,
+    color: Color,
+    lineWidth: Double
+)
 
 object DrawLine:
   given Decoder[DrawLine] = deriveDecoder[DrawLine]
 
 case class DrawDot(
-                    x: Double,
-                    y: Double,
-                    radius: Double
-                  )
+    x: Double,
+    y: Double,
+    radius: Double
+)
 
 object DrawDot:
   given Decoder[DrawDot] = deriveDecoder[DrawDot]
@@ -47,12 +47,12 @@ object DrawingInstruction:
     }
 
 case class FractalConfig(
-                          lineLength: Double,
-                          lineWidth: Double,
-                          turningAngle: Double,
-                          startingColor: Option[String],
-                          maxIterations: Int
-                        )
+    lineLength: Double,
+    lineWidth: Double,
+    turningAngle: Double,
+    startingColor: Option[String],
+    maxIterations: Int
+)
 
 case class FractalRequest(code: String)
 

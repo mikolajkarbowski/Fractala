@@ -5,9 +5,8 @@ import org.scalajs.dom.document
 import org.scalajs.dom.html.Canvas
 import scalatags.JsDom.all._
 
-
 object FractalApp:
-  
+
   def main(args: Array[String]): Unit =
     dom.console.log("Fractal Frontend - Scala.js App Starting...")
 

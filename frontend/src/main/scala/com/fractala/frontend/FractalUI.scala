@@ -5,9 +5,9 @@ import org.scalajs.dom.html._
 import scalatags.JsDom.all._
 
 class FractalUI(
-                 renderer: CanvasRenderer,
-                 apiService: FractalApiService
-               ):
+    renderer: CanvasRenderer,
+    apiService: FractalApiService
+):
 
   private var isRendering = false
 
