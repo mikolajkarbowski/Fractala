@@ -39,3 +39,7 @@ logs/
 
 # Node
 node_modules/
+
+# Vite
+frontend/dist/
+.vite/

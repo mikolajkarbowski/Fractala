@@ -46,14 +46,6 @@ object DrawingInstruction:
           Right(DrawingInstruction.Unknown(obj.toString))
     }
 
-case class FractalConfig(
-    lineLength: Double,
-    lineWidth: Double,
-    turningAngle: Double,
-    startingColor: Option[String],
-    maxIterations: Int
-)
-
 case class FractalRequest(code: String)
 
 object FractalRequest:

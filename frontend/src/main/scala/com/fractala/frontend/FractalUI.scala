@@ -158,7 +158,7 @@ Rules {
   F (0.34) -> F <wood> F
 }"""
 
-  // Elementy UI
+  // UI elements
   private val errorDiv = div(
     id := "errorMessage",
     cls := "error-msg"
@@ -219,7 +219,7 @@ Rules {
     )
   ).render
 
-  // Layout panelu lewego
+  // Left panel layout
   val leftPanel: Div = div(
     cls := "left-panel",
     h2("Fractala Editor"),

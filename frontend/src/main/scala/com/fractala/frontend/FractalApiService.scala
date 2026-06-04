@@ -19,7 +19,7 @@ class TextDecoder(label: String = "utf-8") extends js.Object:
 
 class FractalApiService(apiUrl: String):
 
-  /** Wysyła kod L-Script do backendu i streamuje instrukcje rysowania przez SSE (Server-Sent Events)
+  /** Sends the L-Script code to the backend and streams drawing instructions over SSE (Server-Sent Events).
     */
   def renderFractal(
       code: String,
@@ -82,7 +82,7 @@ class FractalApiService(apiUrl: String):
                             instructionCount += 1
                             onInstruction(instruction)
                           case Left(error) =>
-                            dom.console.error(s"[JSON PARSE ERROR] Ostatni chunk: $jsonStr", error.getMessage)
+                            dom.console.error(s"[JSON PARSE ERROR] Last chunk: $jsonStr", error.getMessage)
                       }
                     }
                   }
@@ -113,14 +113,12 @@ class FractalApiService(apiUrl: String):
                               onInstruction(instruction)
                             case Left(error) =>
                               dom.console.error(s"[JSON PARSE ERROR] Error parsing: $jsonStr", error.getMessage)
-                            case null =>
-                              dom.console.error(s"[JSON PARSE ERROR] Error parsing")
                         }
                       }
                     }
                   }
 
-                  // Rekurencyjne czytanie następnego chunka
+                  // Recursively read the next chunk
                   readChunk()
                 }
               }

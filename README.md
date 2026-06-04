@@ -95,3 +95,45 @@ To override settings without changing the file, you can use environment variable
 ```powershell
 $env:SERVER_PORT="9000"; sbt "project api" run
 ```
+
+## Running the Frontend
+
+The frontend is a [Scala.js](https://www.scala-js.org/) application bundled with
+[Vite](https://vitejs.dev/) via the [`@scala-js/vite-plugin-scalajs`](https://github.com/scala-js/vite-plugin-scalajs)
+plugin. Vite drives sbt for you, so you do not need to link the Scala.js output manually.
+
+### Prerequisites
+
+- **JDK 17 or newer** (e.g. [Temurin](https://adoptium.net/)).
+- **sbt 1.x** — see `project/build.properties` for the pinned version.
+- **Node.js 18 or newer** (ships with `npm`) — required only for the frontend.
+
+### First-time setup
+
+Install the Node dependencies (run once, from the `frontend/` directory):
+
+```powershell
+cd frontend
+npm install
+```
+
+### Development
+
+The frontend talks to the API at `http://localhost:9000`, so start the API first
+(see above), then in a second terminal:
+
+```powershell
+cd frontend
+npm run dev
+```
+
+Vite prints a local URL (default `http://localhost:5173`). It compiles the Scala.js
+sources through sbt and hot-reloads the browser when you edit the Scala code.
+
+### Production build
+
+```powershell
+cd frontend
+npm run build      # outputs static files to frontend/dist
+npm run preview    # serves the built output locally
+```
