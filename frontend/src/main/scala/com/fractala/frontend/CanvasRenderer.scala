@@ -6,12 +6,11 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 /** Renders drawing instructions onto the canvas.
   *
-  * Instructions are drawn as they stream in, while the whole structure is
-  * always kept visible: whenever a new instruction would fall outside the canvas, the view is rescaled.
+  * Instructions are drawn as they stream in, while the whole structure is always kept visible: whenever a new
+  * instruction would fall outside the canvas, the view is rescaled.
   *
-  * Each rescale fits the current content into only [[streamFillFraction]] of the canvas,
-  * leaving headroom to grow before another rescale is needed. When the stream ends, the view settles into a clean
-  * [[finalFillFraction]] fit.
+  * Each rescale fits the current content into only [[streamFillFraction]] of the canvas, leaving headroom to grow
+  * before another rescale is needed. When the stream ends, the view settles into a clean [[finalFillFraction]] fit.
   */
 class CanvasRenderer(canvas: Canvas):
   private val ctx: CanvasRenderingContext2D =
