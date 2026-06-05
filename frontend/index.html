@@ -86,6 +86,12 @@
         overflow-y: auto;
       }
 
+      /* Keep panel children at their natural height so the panel scrolls instead of
+         compressing items — this previously cut off the error box on short/narrow windows. */
+      .left-panel > * {
+        flex-shrink: 0;
+      }
+
       .right-panel {
         flex: 1;
         display: flex;

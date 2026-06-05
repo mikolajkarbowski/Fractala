@@ -96,6 +96,12 @@ Rules {
     onclick := { (_: dom.Event) => copyCode() }
   ).render
 
+  private val clearButton = button(
+    cls := "btn-secondary",
+    "Clear",
+    onclick := { (_: dom.Event) => clearCode() }
+  ).render
+
   private val saveButton = button(
     cls := "btn-secondary",
     "Save PNG",
@@ -116,7 +122,7 @@ Rules {
     h2("Fractala Editor"),
     errorDiv,
     editorWrap,
-    div(cls := "editor-toolbar", copyButton),
+    div(cls := "editor-toolbar", copyButton, clearButton),
     sendButton,
     statusDiv
   ).render
@@ -200,6 +206,13 @@ Rules {
   private def flashCopied(): Unit =
     copyButton.textContent = "Copied!"
     dom.window.setTimeout(() => copyButton.textContent = "Copy code", 1500)
+
+  /** Removes all text from the editor. */
+  private def clearCode(): Unit =
+    inputArea.value = ""
+    saveCode()
+    clearError()
+    inputArea.focus()
 
   /** Saves the current canvas as a PNG. Uses the File System Access API (a native "Save As" dialog where the user picks
     * the name and location) when the browser supports it, and falls back to a direct download otherwise (e.g.

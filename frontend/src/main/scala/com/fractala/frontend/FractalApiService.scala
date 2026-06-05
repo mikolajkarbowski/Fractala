@@ -26,11 +26,22 @@ class FractalApiService(baseUrl: String):
   // Matches a "[line:column]" location marker inside a parser error message.
   private val errorLocationRegex = """\[(\d+):(\d+)\]""".r
 
+  /** The parser sometimes embeds escaped whitespace (the literal characters `\n`, `\t`, ...) inside the snippet it
+    * reports as "found". Replace those with real spaces so the user sees readable text rather than raw escape
+    * sequences. Genuine line breaks in the message are real newline characters and are left untouched.
+    */
+  private def humanizeDetail(detail: String): String =
+    detail
+      .replace("\\r\\n", " ")
+      .replace("\\n", " ")
+      .replace("\\r", " ")
+      .replace("\\t", " ")
+
   /** Parses an API error response body into a [[RenderError]], extracting the syntax-error location if present. */
   private def parseRenderError(httpStatus: Int, body: String): RenderError =
     decode[ApiErrorBody](body) match
       case Right(parsed) =>
-        val detailText = parsed.detail.filter(_.nonEmpty).getOrElse(body)
+        val detailText = humanizeDetail(parsed.detail.filter(_.nonEmpty).getOrElse(body))
         val location = errorLocationRegex.findFirstMatchIn(detailText).map(m => (m.group(1).toInt, m.group(2).toInt))
         val statusText = parsed.status.getOrElse(httpStatus)
         val summary = parsed.title.filter(_.nonEmpty).getOrElse("Error") + s" ($statusText)"
