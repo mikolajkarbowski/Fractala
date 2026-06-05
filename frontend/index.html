@@ -110,11 +110,50 @@
         margin-top: 15px;
       }
 
+      /* Editor: a transparent textarea sitting on top of a highlight backdrop. */
+      .editor-wrap {
+        position: relative;
+        margin-bottom: 10px;
+      }
+
+      .editor-highlights {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 12px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background-color: #1e1e1e;
+        color: transparent;
+        font-family: "Courier New", "Consolas", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        overflow: hidden;
+        pointer-events: none;
+        box-sizing: border-box;
+        z-index: 0;
+      }
+
+      .editor-highlights .error-highlight {
+        background-color: rgba(244, 135, 113, 0.35);
+        border-bottom: 2px solid #f48771;
+        border-radius: 2px;
+      }
+
       .code-editor {
+        position: relative;
+        z-index: 1;
+        display: block;
         width: 100%;
         height: 500px;
         min-height: 280px;
-        background-color: #1e1e1e;
+        background-color: transparent;
         color: #dcdcaa;
         border: 1px solid #3e3e42;
         border-radius: 4px;
@@ -122,15 +161,45 @@
         font-family: "Courier New", "Consolas", monospace;
         font-size: 14px;
         line-height: 1.5;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        box-sizing: border-box;
         resize: vertical;
         outline: none;
-        margin-bottom: 15px;
         transition: border-color 0.3s;
       }
 
       .code-editor:focus {
         border-color: #61afef;
         box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.1);
+      }
+
+      .editor-toolbar {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .btn-secondary {
+        padding: 8px 14px;
+        background-color: #2d2d30;
+        color: #d4d4d4;
+        border: 1px solid #3e3e42;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background-color: #3e3e42;
+        border-color: #61afef;
+      }
+
+      .btn-secondary:active {
+        transform: translateY(1px);
       }
 
       .btn-primary {
@@ -181,6 +250,30 @@
         display: block;
       }
 
+      .error-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+        color: #f48771;
+      }
+
+      .error-loc {
+        font-family: "Courier New", "Consolas", monospace;
+        font-size: 12px;
+        color: #ffb3a0;
+        margin-bottom: 6px;
+      }
+
+      .error-detail {
+        margin: 0;
+        font-family: "Courier New", "Consolas", monospace;
+        font-size: 12px;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        color: #e6b0a6;
+      }
+
       .status-msg {
         color: #98c379;
         background-color: rgba(152, 195, 121, 0.1);
@@ -197,12 +290,27 @@
         display: block;
       }
 
+      .canvas-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .canvas-toolbar {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+
       #fractalCanvas {
         background-color: white;
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         max-width: 100%;
-        max-height: calc(100vh - 110px);
+        max-height: calc(100vh - 160px);
       }
 
       /* Examples gallery */

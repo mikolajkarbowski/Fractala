@@ -68,3 +68,27 @@ case class FractalsPage(items: List[ExampleFractal])
 
 object FractalsPage:
   given Decoder[FractalsPage] = deriveDecoder[FractalsPage]
+
+/** A render/validation failure, parsed from the API for friendly display.
+  *
+  * @param summary
+  *   short headline, e.g. "Bad Request (400)".
+  * @param detail
+  *   the full (possibly multi-line) explanation from the server.
+  * @param line
+  *   1-based line of the syntax error in the user's code, if known.
+  * @param column
+  *   1-based column of the syntax error, if known.
+  */
+final case class RenderError(
+    summary: String,
+    detail: String,
+    line: Option[Int],
+    column: Option[Int]
+)
+
+/** Subset of the API's `ErrorResponse` body that we decode (other fields are ignored). */
+case class ApiErrorBody(title: Option[String], status: Option[Int], detail: Option[String])
+
+object ApiErrorBody:
+  given Decoder[ApiErrorBody] = deriveDecoder[ApiErrorBody]
