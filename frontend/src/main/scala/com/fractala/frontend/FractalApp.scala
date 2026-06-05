@@ -60,7 +60,7 @@ object FractalApp:
 
     val bar = div(
       cls := "nav-bar",
-      span(cls := "nav-brand", "Fractala"),
+      div(cls := "nav-brand", span(cls := "nav-logo"), span(cls := "nav-title", "Fractala")),
       div(cls := "nav-tabs", editorTab, examplesTab)
     ).render
 

@@ -91,19 +91,19 @@ Rules {
   private val editorWrap = div(cls := "editor-wrap", highlightsDiv, inputArea).render
 
   private val copyButton = button(
-    cls := "btn-secondary",
+    cls := "btn-secondary btn-copy",
     "Copy code",
     onclick := { (_: dom.Event) => copyCode() }
   ).render
 
   private val clearButton = button(
-    cls := "btn-secondary",
+    cls := "btn-secondary btn-clear",
     "Clear",
     onclick := { (_: dom.Event) => clearCode() }
   ).render
 
   private val saveButton = button(
-    cls := "btn-secondary",
+    cls := "btn-secondary btn-save",
     "Save PNG",
     onclick := { (_: dom.Event) => saveImage() }
   ).render
@@ -120,6 +120,7 @@ Rules {
   private val leftPanel = div(
     cls := "left-panel",
     h2("Fractala Editor"),
+    p(cls := "panel-subtitle", "Write L-System code, then generate a fractal."),
     errorDiv,
     editorWrap,
     div(cls := "editor-toolbar", copyButton, clearButton),
