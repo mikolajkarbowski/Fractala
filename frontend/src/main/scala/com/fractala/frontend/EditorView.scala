@@ -5,6 +5,7 @@ import org.scalajs.dom.document
 import org.scalajs.dom.html.{Anchor, Canvas, Div, TextArea}
 import scalatags.JsDom.all._
 import scala.scalajs.js
+import scala.concurrent.{Future, Promise}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
 /** The editor page: a DSL code editor on the left and a rendering canvas on the right.
@@ -40,6 +41,21 @@ Rules {
   // Approximate line height in px (font-size 14px * line-height 1.5), used to scroll errors into view.
   private val lineHeightPx = 21.0
 
+  // localStorage key under which the editor contents are persisted across reloads.
+  private val storageKey = "fractala.editorCode"
+
+  /** Returns the persisted editor code, or the default snippet if nothing is saved. */
+  private def loadInitialCode(): String =
+    try
+      val saved = dom.window.localStorage.getItem(storageKey)
+      if saved != null && saved.nonEmpty then saved else defaultCode
+    catch case _: Throwable => defaultCode // localStorage may be unavailable (e.g. private mode)
+
+  /** Persists the current editor contents to localStorage. */
+  private def saveCode(): Unit =
+    try dom.window.localStorage.setItem(storageKey, inputArea.value)
+    catch case _: Throwable => ()
+
   private val canvas: Canvas =
     val c = document.createElement("canvas").asInstanceOf[Canvas]
     c.id = "fractalCanvas"
@@ -60,12 +76,17 @@ Rules {
     id := "dslInput",
     cls := "code-editor",
     spellcheck := false,
-    defaultCode
+    loadInitialCode()
   ).render
 
-  // Keep the highlight backdrop scrolled in sync with the textarea, and clear it once the user edits.
+  // Keep the highlight backdrop scrolled in sync with the textarea, and clear the error + persist on edit.
   inputArea.addEventListener("scroll", (_: dom.Event) => syncHighlightScroll())
-  inputArea.addEventListener("input", (_: dom.Event) => clearError())
+  inputArea.addEventListener(
+    "input",
+    (_: dom.Event) =>
+      clearError()
+      saveCode()
+  )
 
   private val editorWrap = div(cls := "editor-wrap", highlightsDiv, inputArea).render
 
@@ -118,6 +139,7 @@ Rules {
     apiService.fetchExample(id).foreach {
       case Right(example) =>
         inputArea.value = example.code
+        saveCode()
         statusDiv.textContent = s"Loaded example: ${example.name}"
         handleRender()
       case Left(error) =>
@@ -178,8 +200,44 @@ Rules {
     copyButton.textContent = "Copied!"
     dom.window.setTimeout(() => copyButton.textContent = "Copy code", 1500)
 
-  /** Downloads the current canvas as a PNG file. */
+  /** Saves the current canvas as a PNG. Uses the File System Access API (a native "Save As" dialog where the user picks
+    * the name and location) when the browser supports it, and falls back to a direct download otherwise (e.g.
+    * Firefox/Safari).
+    */
   private def saveImage(): Unit =
+    val win = dom.window.asInstanceOf[js.Dynamic]
+    if js.isUndefined(win.showSaveFilePicker) then saveImageWithDownload()
+    else saveImageWithDialog(win)
+
+  private def saveImageWithDialog(win: js.Dynamic): Unit =
+    val accept = js.Dynamic.literal()
+    accept.updateDynamic("image/png")(js.Array(".png"))
+    val options = js.Dynamic.literal(
+      suggestedName = "fractal.png",
+      types = js.Array(js.Dynamic.literal(description = "PNG image", accept = accept))
+    )
+
+    val saveOp =
+      for
+        handle <- win.showSaveFilePicker(options).asInstanceOf[js.Promise[js.Dynamic]].toFuture
+        blob <- canvasToBlob()
+        writable <- handle.createWritable().asInstanceOf[js.Promise[js.Dynamic]].toFuture
+        _ <- writable.write(blob.asInstanceOf[js.Any]).asInstanceOf[js.Promise[js.Any]].toFuture
+        _ <- writable.close().asInstanceOf[js.Promise[js.Any]].toFuture
+      yield ()
+
+    // The user cancelling the dialog rejects with an AbortError; just log and move on.
+    saveOp.recover { case error => dom.console.log(s"[SAVE] Cancelled or failed: ${error.getMessage}") }
+
+  private def canvasToBlob(): Future[dom.Blob] =
+    val promise = Promise[dom.Blob]()
+    val callback: js.Function1[dom.Blob, Unit] = blob =>
+      if blob != null then promise.success(blob)
+      else promise.failure(new RuntimeException("Could not export the canvas."))
+    canvas.asInstanceOf[js.Dynamic].toBlob(callback, "image/png")
+    promise.future
+
+  private def saveImageWithDownload(): Unit =
     val dataUrl = canvas.toDataURL("image/png")
     val link = document.createElement("a").asInstanceOf[Anchor]
     link.href = dataUrl
