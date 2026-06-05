@@ -17,7 +17,56 @@ trait TextDecodeOptions extends js.Object:
 class TextDecoder(label: String = "utf-8") extends js.Object:
   def decode(data: ArrayBufferView, options: TextDecodeOptions = js.native): String = js.native
 
-class FractalApiService(apiUrl: String):
+/** Talks to the Fractala backend. `baseUrl` is the server origin, e.g. "http://localhost:9000". */
+class FractalApiService(baseUrl: String):
+
+  private val renderUrl = s"$baseUrl/fractals/render"
+  private val fractalsUrl = s"$baseUrl/fractals"
+
+  /** Fetches the catalog of example fractals (`GET /fractals`). */
+  def fetchExamples(limit: Int = 100, offset: Int = 0): Future[Either[String, List[ExampleFractal]]] =
+    val url = s"$fractalsUrl?limit=$limit&offset=$offset"
+    dom
+      .fetch(url)
+      .toFuture
+      .flatMap { response =>
+        if (!response.ok)
+          response.text().toFuture.map { body =>
+            Left(s"Failed to load examples (${response.status}): $body")
+          }
+        else
+          response.text().toFuture.map { body =>
+            decode[FractalsPage](body) match
+              case Right(page) => Right(page.items)
+              case Left(error) => Left(s"Failed to parse examples: ${error.getMessage}")
+          }
+      }
+      .recover { case error =>
+        Left(s"Connection error: ${error.getMessage}")
+      }
+
+  /** Fetches a single example fractal by id (`GET /fractals/{id}`). */
+  def fetchExample(id: String): Future[Either[String, ExampleFractal]] =
+    val url = s"$fractalsUrl/$id"
+    dom
+      .fetch(url)
+      .toFuture
+      .flatMap { response =>
+        if (!response.ok)
+          response.text().toFuture.map { body =>
+            if (response.status == 404) Left("Example not found.")
+            else Left(s"Failed to load example (${response.status}): $body")
+          }
+        else
+          response.text().toFuture.map { body =>
+            decode[ExampleFractal](body) match
+              case Right(example) => Right(example)
+              case Left(error)    => Left(s"Failed to parse example: ${error.getMessage}")
+          }
+      }
+      .recover { case error =>
+        Left(s"Connection error: ${error.getMessage}")
+      }
 
   /** Sends the L-Script code to the backend and streams drawing instructions over SSE (Server-Sent Events).
     */
@@ -32,7 +81,7 @@ class FractalApiService(apiUrl: String):
     val request = FractalRequest(code)
     val requestBody = request.asJson.noSpaces
 
-    dom.console.log(s"[API] Sending request to: $apiUrl")
+    dom.console.log(s"[API] Sending request to: $renderUrl")
     dom.console.log(s"[API] Body: $requestBody")
 
     val fetchOptions = js.Dynamic.literal(
@@ -44,7 +93,7 @@ class FractalApiService(apiUrl: String):
     )
 
     dom
-      .fetch(apiUrl, fetchOptions.asInstanceOf[dom.RequestInit])
+      .fetch(renderUrl, fetchOptions.asInstanceOf[dom.RequestInit])
       .toFuture
       .flatMap { response =>
         if (!response.ok) {

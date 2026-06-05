@@ -50,3 +50,21 @@ case class FractalRequest(code: String)
 
 object FractalRequest:
   given Encoder[FractalRequest] = deriveEncoder[FractalRequest]
+
+/** A single example fractal as returned by the catalog API (`GET /fractals/{id}`). */
+case class ExampleFractal(
+    id: String,
+    name: String,
+    description: String,
+    code: String,
+    imageUrl: String
+)
+
+object ExampleFractal:
+  given Decoder[ExampleFractal] = deriveDecoder[ExampleFractal]
+
+/** A page of the paginated catalog (`GET /fractals`). The `meta` field is ignored. */
+case class FractalsPage(items: List[ExampleFractal])
+
+object FractalsPage:
+  given Decoder[FractalsPage] = deriveDecoder[FractalsPage]

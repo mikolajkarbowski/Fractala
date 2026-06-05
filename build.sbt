@@ -21,9 +21,13 @@ lazy val core = (project in file("core"))
 
 lazy val api = (project in file("api"))
   .dependsOn(core)
+  .enablePlugins(JavaAppPackaging)
   .settings(
     name := "fractala-api",
     Compile / run / fork := true,
+    // Use a lib/* classpath wildcard in the generated launcher scripts. Without this,
+    // the Windows .bat enumerates every jar and exceeds the 8191-char command-line limit.
+    scriptClasspath := Seq("*"),
     libraryDependencies ++= Seq(
       // Tapir & Http4s
       "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,

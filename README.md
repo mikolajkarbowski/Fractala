@@ -81,7 +81,7 @@ CONFIG {
 
 ## Running the API server
 
-To run the server, use:
+For quick API-only work, run it straight from sbt:
 
 ```ps1
 sbt "project api" run
@@ -95,6 +95,22 @@ To override settings without changing the file, you can use environment variable
 ```powershell
 $env:SERVER_PORT="9000"; sbt "project api" run
 ```
+
+### Running the API as a standalone launcher (recommended for frontend work)
+
+On Windows, two `sbt` processes cannot run in the same project at once (they
+collide on a boot lock). Because the frontend dev server invokes `sbt` to link
+the Scala.js code, you cannot have `sbt "project api" run` going at the same time
+as `npm run dev`. To work on the frontend with a live API, run the API as a
+standalone launcher (a plain JVM process, no sbt):
+
+```powershell
+sbt "project api" stage          # build the launcher (re-run only when the API changes)
+.\api\target\universal\stage\bin\fractala-api.bat
+```
+
+The launcher reads the same `application.conf` and honours the same environment
+variables (e.g. `$env:SERVER_PORT="9000"`).
 
 ## Running the Frontend
 
@@ -119,16 +135,23 @@ npm install
 
 ### Development
 
-The frontend talks to the API at `http://localhost:9000`, so start the API first
-(see above), then in a second terminal:
+The frontend talks to the API at `http://localhost:9000`. Start the API as a
+**standalone launcher** (see "Running the API as a standalone launcher" above) so
+it doesn't conflict with the frontend's sbt usage, then in another terminal:
 
 ```powershell
 cd frontend
 npm run dev
 ```
 
-Vite prints a local URL (default `http://localhost:5173`). It compiles the Scala.js
-sources through sbt and hot-reloads the browser when you edit the Scala code.
+Vite prints a local URL (default `http://localhost:5173`). On startup it invokes
+sbt once to link the Scala.js sources, then serves the app.
+
+- Edits to `index.html` / CSS hot-reload instantly.
+- Edits to **Scala** sources are picked up by restarting `npm run dev` (which
+  re-runs the link). For a faster Scala loop, run `sbt ~frontend/fastLinkJS` in a
+  separate terminal to relink on save — this works as long as the API is running
+  as the standalone launcher (not via `sbt run`), so only one `sbt` is active.
 
 ### Production build
 
