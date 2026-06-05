@@ -157,14 +157,14 @@ Rules {
     sendButton.disabled = true
     sendButton.textContent = "Drawing..."
 
-    renderer.clear()
+    renderer.beginStream()
     var instructionCount = 0
 
     apiService.renderFractal(
       code = code,
       onInstruction = { instruction =>
         instructionCount += 1
-        renderer.drawInstruction(instruction)
+        renderer.addInstruction(instruction)
         if instructionCount % 100 == 0 then statusDiv.textContent = s"Drawn $instructionCount instructions..."
       },
       onError = { error =>
@@ -173,6 +173,7 @@ Rules {
         resetButton()
       },
       onComplete = { () =>
+        renderer.endStream()
         statusDiv.textContent = s"Done! Drawn $instructionCount instructions."
         resetButton()
       }
