@@ -147,16 +147,10 @@ npm run dev
 Vite prints a local URL (default `http://localhost:5173`). On startup it invokes
 sbt once to link the Scala.js sources, then serves the app.
 
-- Edits to `index.html` / CSS hot-reload instantly.
-- Edits to **Scala** sources are picked up by restarting `npm run dev` (which
-  re-runs the link). For a faster Scala loop, run `sbt ~frontend/fastLinkJS` in a
-  separate terminal to relink on save — this works as long as the API is running
-  as the standalone launcher (not via `sbt run`), so only one `sbt` is active.
-
 ### Production build
 
 ```powershell
 cd frontend
-npm run build      # outputs static files to frontend/dist
-npm run preview    # serves the built output locally
+npm run build
+npm run preview
 ```

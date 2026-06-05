@@ -63,7 +63,7 @@ case class ExampleFractal(
 object ExampleFractal:
   given Decoder[ExampleFractal] = deriveDecoder[ExampleFractal]
 
-/** A page of the paginated catalog (`GET /fractals`). The `meta` field is ignored. */
+/** A page of the paginated catalog (`GET /fractals`). */
 case class FractalsPage(items: List[ExampleFractal])
 
 object FractalsPage:

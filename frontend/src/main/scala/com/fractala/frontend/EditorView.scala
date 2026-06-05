@@ -38,7 +38,7 @@ Rules {
   F -> F F
 }"""
 
-  // Approximate line height in px (font-size 14px * line-height 1.5), used to scroll errors into view.
+  // Approximate line height in px (font-size 14px * line-height 1.5).
   private val lineHeightPx = 21.0
 
   // localStorage key under which the editor contents are persisted across reloads.
@@ -49,9 +49,8 @@ Rules {
     try
       val saved = dom.window.localStorage.getItem(storageKey)
       if saved != null && saved.nonEmpty then saved else defaultCode
-    catch case _: Throwable => defaultCode // localStorage may be unavailable (e.g. private mode)
+    catch case _: Throwable => defaultCode
 
-  /** Persists the current editor contents to localStorage. */
   private def saveCode(): Unit =
     try dom.window.localStorage.setItem(storageKey, inputArea.value)
     catch case _: Throwable => ()
@@ -79,7 +78,7 @@ Rules {
     loadInitialCode()
   ).render
 
-  // Keep the highlight backdrop scrolled in sync with the textarea, and clear the error + persist on edit.
+  // Keep the highlight backdrop scrolled in sync with the textarea.
   inputArea.addEventListener("scroll", (_: dom.Event) => syncHighlightScroll())
   inputArea.addEventListener(
     "input",
@@ -191,7 +190,7 @@ Rules {
     sendButton.disabled = false
     sendButton.textContent = "Generate"
 
-  /** Copies the entire editor contents to the clipboard, with a graceful fallback for older browsers. */
+  /** Copies the entire editor contents to the clipboard. */
   private def copyCode(): Unit =
     val text = inputArea.value
     val clipboard = dom.window.navigator.asInstanceOf[js.Dynamic].clipboard
@@ -208,7 +207,6 @@ Rules {
     copyButton.textContent = "Copied!"
     dom.window.setTimeout(() => copyButton.textContent = "Copy code", 1500)
 
-  /** Removes all text from the editor. */
   private def clearCode(): Unit =
     inputArea.value = ""
     saveCode()
@@ -216,8 +214,7 @@ Rules {
     inputArea.focus()
 
   /** Saves the current canvas as a PNG. Uses the File System Access API (a native "Save As" dialog where the user picks
-    * the name and location) when the browser supports it, and falls back to a direct download otherwise (e.g.
-    * Firefox/Safari).
+    * the name and location).
     */
   private def saveImage(): Unit =
     val win = dom.window.asInstanceOf[js.Dynamic]
@@ -241,7 +238,6 @@ Rules {
         _ <- writable.close().asInstanceOf[js.Promise[js.Any]].toFuture
       yield ()
 
-    // The user cancelling the dialog rejects with an AbortError; just log and move on.
     saveOp.recover { case error => dom.console.log(s"[SAVE] Cancelled or failed: ${error.getMessage}") }
 
   private def canvasToBlob(): Future[dom.Blob] =
@@ -292,8 +288,7 @@ Rules {
       val lineText = lines(idx)
       val lineStart = lines.take(idx).map(_.length + 1).sum
       val startCol = math.min(math.max(column - 1, 0), lineText.length)
-      // Highlight from the error column to the end of the line; if the column is at/after the
-      // line end, highlight the whole line instead.
+
       val (from, to) =
         if startCol >= lineText.length then (0, lineText.length)
         else (startCol, lineText.length)

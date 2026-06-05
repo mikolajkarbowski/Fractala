@@ -6,13 +6,12 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 /** Renders drawing instructions onto the canvas.
   *
-  * Instructions are drawn incrementally as they stream in (so the fractal visibly grows), while the whole structure is
-  * always kept visible: whenever a new instruction would fall outside the canvas, the view is rescaled and recentred so
-  * everything fits, and what has been drawn so far is redrawn.
+  * Instructions are drawn as they stream in, while the whole structure is
+  * always kept visible: whenever a new instruction would fall outside the canvas, the view is rescaled.
   *
-  * To keep these rescales rare, each one fits the current content into only [[streamFillFraction]] of the canvas,
+  * Each rescale fits the current content into only [[streamFillFraction]] of the canvas,
   * leaving headroom to grow before another rescale is needed. When the stream ends, the view settles into a clean
-  * [[finalFillFraction]] fit. The canvas's on-page size never changes; only the drawing is scaled.
+  * [[finalFillFraction]] fit.
   */
 class CanvasRenderer(canvas: Canvas):
   private val ctx: CanvasRenderingContext2D =
@@ -20,8 +19,7 @@ class CanvasRenderer(canvas: Canvas):
 
   // Final fit: the fractal occupies this fraction of the canvas (the rest is padding).
   private val finalFillFraction = 0.95
-  // Streaming fit: each rescale shrinks content to this smaller fraction, leaving room to grow so that
-  // rescales (which redraw everything) happen only a few times during a render.
+  // Streaming fit: each rescale shrinks content to this smaller fraction.
   private val streamFillFraction = 0.95
 
   private final case class Transform(scale: Double, centerX: Double, centerY: Double):
@@ -136,7 +134,6 @@ class CanvasRenderer(canvas: Canvas):
         dom.console.warn(s"[RENDERER] Unsupported instruction: $raw")
 
   private def drawLine(line: DrawLine, t: Transform): Unit =
-    // Convert color from Scala (0.0 - 1.0) to CSS (0 - 255)
     val r = Math.round(line.color.r * 255).toInt
     val g = Math.round(line.color.g * 255).toInt
     val b = Math.round(line.color.b * 255).toInt

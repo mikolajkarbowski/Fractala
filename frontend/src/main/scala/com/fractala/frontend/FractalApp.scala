@@ -12,10 +12,8 @@ object FractalApp:
     val apiBaseUrl = "http://localhost:9000"
     val apiService = new FractalApiService(apiBaseUrl)
 
-    // Container that holds the currently active page (editor or examples).
     val contentContainer = div(id := "app-content").render
 
-    // `router` is assigned below; `navigate` defers to it so views can be built first.
     var router: Router = null
     def navigate(path: String): Unit =
       if router != null then router.navigateTo(path)
@@ -64,7 +62,6 @@ object FractalApp:
       div(cls := "nav-tabs", editorTab, examplesTab)
     ).render
 
-    // The editor tab is active for every editor view, including deep-linked examples.
     def setActiveTab(route: Route): Unit =
       val editorActive = route != Route.Examples
       if editorActive then editorTab.classList.add("active") else editorTab.classList.remove("active")

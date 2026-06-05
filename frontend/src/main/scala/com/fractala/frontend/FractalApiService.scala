@@ -26,10 +26,6 @@ class FractalApiService(baseUrl: String):
   // Matches a "[line:column]" location marker inside a parser error message.
   private val errorLocationRegex = """\[(\d+):(\d+)\]""".r
 
-  /** The parser sometimes embeds escaped whitespace (the literal characters `\n`, `\t`, ...) inside the snippet it
-    * reports as "found". Replace those with real spaces so the user sees readable text rather than raw escape
-    * sequences. Genuine line breaks in the message are real newline characters and are left untouched.
-    */
   private def humanizeDetail(detail: String): String =
     detail
       .replace("\\r\\n", " ")
@@ -94,8 +90,7 @@ class FractalApiService(baseUrl: String):
         Left(s"Connection error: ${error.getMessage}")
       }
 
-  /** Sends the L-Script code to the backend and streams drawing instructions over SSE (Server-Sent Events).
-    */
+  /** Sends the L-Script code to the backend and streams drawing instructions over SSE. */
   def renderFractal(
       code: String,
       onInstruction: DrawingInstruction => Unit,
@@ -193,7 +188,6 @@ class FractalApiService(baseUrl: String):
                     }
                   }
 
-                  // Recursively read the next chunk
                   readChunk()
                 }
               }
