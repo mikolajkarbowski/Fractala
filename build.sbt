@@ -1,3 +1,5 @@
+import org.scalajs.linker.interface.ModuleKind
+
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "3.3.7"
 ThisBuild / organization := "com.fractala"
@@ -19,9 +21,11 @@ lazy val core = (project in file("core"))
 
 lazy val api = (project in file("api"))
   .dependsOn(core)
+  .enablePlugins(JavaAppPackaging)
   .settings(
     name := "fractala-api",
     Compile / run / fork := true,
+    scriptClasspath := Seq("*"),
     libraryDependencies ++= Seq(
       // Tapir & Http4s
       "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
@@ -49,6 +53,8 @@ lazy val frontend = (project in file("frontend"))
   .settings(
     name := "fractala-frontend",
     scalaJSUseMainModuleInitializer := true,
+    // Emit ES modules so the output can be consumed by Vite (and modern browsers).
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.8.0",
       "com.lihaoyi" %%% "scalatags" % "0.12.0",

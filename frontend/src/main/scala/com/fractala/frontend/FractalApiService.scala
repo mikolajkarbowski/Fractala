@@ -17,14 +17,84 @@ trait TextDecodeOptions extends js.Object:
 class TextDecoder(label: String = "utf-8") extends js.Object:
   def decode(data: ArrayBufferView, options: TextDecodeOptions = js.native): String = js.native
 
-class FractalApiService(apiUrl: String):
+/** Talks to the Fractala backend. `baseUrl` is the server origin, e.g. "http://localhost:9000". */
+class FractalApiService(baseUrl: String):
 
-  /** Wysyła kod L-Script do backendu i streamuje instrukcje rysowania przez SSE (Server-Sent Events)
-    */
+  private val renderUrl = s"$baseUrl/fractals/render"
+  private val fractalsUrl = s"$baseUrl/fractals"
+
+  // Matches a "[line:column]" location marker inside a parser error message.
+  private val errorLocationRegex = """\[(\d+):(\d+)\]""".r
+
+  private def humanizeDetail(detail: String): String =
+    detail
+      .replace("\\r\\n", " ")
+      .replace("\\n", " ")
+      .replace("\\r", " ")
+      .replace("\\t", " ")
+
+  /** Parses an API error response body into a [[RenderError]], extracting the syntax-error location if present. */
+  private def parseRenderError(httpStatus: Int, body: String): RenderError =
+    decode[ApiErrorBody](body) match
+      case Right(parsed) =>
+        val detailText = humanizeDetail(parsed.detail.filter(_.nonEmpty).getOrElse(body))
+        val location = errorLocationRegex.findFirstMatchIn(detailText).map(m => (m.group(1).toInt, m.group(2).toInt))
+        val statusText = parsed.status.getOrElse(httpStatus)
+        val summary = parsed.title.filter(_.nonEmpty).getOrElse("Error") + s" ($statusText)"
+        RenderError(summary, detailText, location.map(_._1), location.map(_._2))
+      case Left(_) =>
+        RenderError(s"Server error ($httpStatus)", body, None, None)
+
+  /** Fetches the catalog of example fractals (`GET /fractals`). */
+  def fetchExamples(limit: Int = 100, offset: Int = 0): Future[Either[String, List[ExampleFractal]]] =
+    val url = s"$fractalsUrl?limit=$limit&offset=$offset"
+    dom
+      .fetch(url)
+      .toFuture
+      .flatMap { response =>
+        if (!response.ok)
+          response.text().toFuture.map { body =>
+            Left(s"Failed to load examples (${response.status}): $body")
+          }
+        else
+          response.text().toFuture.map { body =>
+            decode[FractalsPage](body) match
+              case Right(page) => Right(page.items)
+              case Left(error) => Left(s"Failed to parse examples: ${error.getMessage}")
+          }
+      }
+      .recover { case error =>
+        Left(s"Connection error: ${error.getMessage}")
+      }
+
+  /** Fetches a single example fractal by id (`GET /fractals/{id}`). */
+  def fetchExample(id: String): Future[Either[String, ExampleFractal]] =
+    val url = s"$fractalsUrl/$id"
+    dom
+      .fetch(url)
+      .toFuture
+      .flatMap { response =>
+        if (!response.ok)
+          response.text().toFuture.map { body =>
+            if (response.status == 404) Left("Example not found.")
+            else Left(s"Failed to load example (${response.status}): $body")
+          }
+        else
+          response.text().toFuture.map { body =>
+            decode[ExampleFractal](body) match
+              case Right(example) => Right(example)
+              case Left(error)    => Left(s"Failed to parse example: ${error.getMessage}")
+          }
+      }
+      .recover { case error =>
+        Left(s"Connection error: ${error.getMessage}")
+      }
+
+  /** Sends the L-Script code to the backend and streams drawing instructions over SSE. */
   def renderFractal(
       code: String,
       onInstruction: DrawingInstruction => Unit,
-      onError: String => Unit,
+      onError: RenderError => Unit,
       onComplete: () => Unit
   ): Future[Unit] =
     val promise = Promise[Unit]()
@@ -32,7 +102,7 @@ class FractalApiService(apiUrl: String):
     val request = FractalRequest(code)
     val requestBody = request.asJson.noSpaces
 
-    dom.console.log(s"[API] Sending request to: $apiUrl")
+    dom.console.log(s"[API] Sending request to: $renderUrl")
     dom.console.log(s"[API] Body: $requestBody")
 
     val fetchOptions = js.Dynamic.literal(
@@ -44,15 +114,15 @@ class FractalApiService(apiUrl: String):
     )
 
     dom
-      .fetch(apiUrl, fetchOptions.asInstanceOf[dom.RequestInit])
+      .fetch(renderUrl, fetchOptions.asInstanceOf[dom.RequestInit])
       .toFuture
       .flatMap { response =>
         if (!response.ok) {
           response.text().toFuture.map { errorText =>
-            val errorMsg = s"[API ERROR] Server Error (${response.status}): $errorText"
-            dom.console.error(errorMsg)
-            onError(errorMsg)
-            promise.failure(new Exception(errorMsg))
+            val renderError = parseRenderError(response.status, errorText)
+            dom.console.error(s"[API ERROR] ${renderError.summary}: ${renderError.detail}")
+            onError(renderError)
+            promise.failure(new Exception(renderError.summary))
           }
         } else {
           dom.console.log("[API] Connected to stream. Awaiting data...")
@@ -82,7 +152,7 @@ class FractalApiService(apiUrl: String):
                             instructionCount += 1
                             onInstruction(instruction)
                           case Left(error) =>
-                            dom.console.error(s"[JSON PARSE ERROR] Ostatni chunk: $jsonStr", error.getMessage)
+                            dom.console.error(s"[JSON PARSE ERROR] Last chunk: $jsonStr", error.getMessage)
                       }
                     }
                   }
@@ -113,21 +183,18 @@ class FractalApiService(apiUrl: String):
                               onInstruction(instruction)
                             case Left(error) =>
                               dom.console.error(s"[JSON PARSE ERROR] Error parsing: $jsonStr", error.getMessage)
-                            case null =>
-                              dom.console.error(s"[JSON PARSE ERROR] Error parsing")
                         }
                       }
                     }
                   }
 
-                  // Rekurencyjne czytanie następnego chunka
                   readChunk()
                 }
               }
               .recoverWith { case error =>
-                val errorMsg = s"[STREAM ERROR] Error reading stream: ${error.getMessage}"
-                dom.console.error(errorMsg)
-                onError(errorMsg)
+                val errorMsg = s"Error reading stream: ${error.getMessage}"
+                dom.console.error(s"[STREAM ERROR] $errorMsg")
+                onError(RenderError("Connection error", errorMsg, None, None))
                 promise.failure(error)
                 Future.failed(error)
               }
@@ -136,9 +203,9 @@ class FractalApiService(apiUrl: String):
         }
       }
       .recoverWith { case error =>
-        val errorMsg = s"[FETCH ERROR] Connection error: ${error.getMessage}"
+        val errorMsg = s"Connection error: ${error.getMessage}"
         dom.console.error(s"[FETCH ERROR] $errorMsg")
-        onError(errorMsg)
+        onError(RenderError("Connection error", errorMsg, None, None))
         promise.failure(error)
         Future.failed(error)
       }

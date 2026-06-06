@@ -81,7 +81,7 @@ CONFIG {
 
 ## Running the API server
 
-To run the server, use:
+For quick API-only work, run it straight from sbt:
 
 ```ps1
 sbt "project api" run
@@ -94,4 +94,73 @@ To override settings without changing the file, you can use environment variable
 **Windows (PowerShell):**
 ```powershell
 $env:SERVER_PORT="9000"; sbt "project api" run
+```
+
+### Running the API as a standalone launcher (recommended for frontend work)
+
+On Windows, two `sbt` processes cannot run in the same project at once (they
+collide on a boot lock). Because the frontend dev server invokes `sbt` to link
+the Scala.js code, you cannot have `sbt "project api" run` going at the same time
+as `npm run dev`. To work on the frontend with a live API, run the API as a
+standalone launcher (a plain JVM process, no sbt):
+
+```powershell
+sbt "project api" stage          # build the launcher (re-run only when the API changes)
+.\api\target\universal\stage\bin\fractala-api.bat
+```
+
+The launcher reads the same `application.conf` and honours the same environment
+variables (e.g. `$env:SERVER_PORT="9000"`).
+
+## Running the Frontend
+
+The frontend is a [Scala.js](https://www.scala-js.org/) application bundled with
+[Vite](https://vitejs.dev/) via the [`@scala-js/vite-plugin-scalajs`](https://github.com/scala-js/vite-plugin-scalajs)
+plugin. Vite drives sbt for you, so you do not need to link the Scala.js output manually.
+
+### Prerequisites
+
+- **JDK 17 or newer** (e.g. [Temurin](https://adoptium.net/)).
+- **sbt 1.x** — see `project/build.properties` for the pinned version.
+- **Node.js 18 or newer** (ships with `npm`) — required only for the frontend.
+
+### First-time setup
+
+Install the Node dependencies (run once, from the `frontend/` directory):
+
+```powershell
+cd frontend
+npm install
+```
+
+### Development
+
+The frontend talks to the API at `http://localhost:9000`. Start the API as a
+**standalone launcher** (see "Running the API as a standalone launcher" above) so
+it doesn't conflict with the frontend's sbt usage, then in another terminal:
+
+```powershell
+cd frontend
+npm run dev
+```
+
+Vite prints a local URL (default `http://localhost:5173`). On startup it invokes
+sbt once to link the Scala.js sources, then serves the app.
+
+### Configuring the API URL
+
+The frontend reads the API base URL from the Vite env var `VITE_API_BASE_URL`,
+defaulting to `http://localhost:9000` when it is unset. To point the app at a
+different API, copy `frontend/.env.example` to `frontend/.env` and set the value:
+
+```
+VITE_API_BASE_URL=https://your-api.example.com
+```
+
+### Production build
+
+```powershell
+cd frontend
+npm run build
+npm run preview
 ```

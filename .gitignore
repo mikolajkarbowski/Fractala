@@ -39,3 +39,12 @@ logs/
 
 # Node
 node_modules/
+
+# Vite
+frontend/dist/
+.vite/
+
+# Local env files (keep .env.example committed)
+.env
+.env.local
+.env.*.local
