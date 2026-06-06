@@ -147,6 +147,16 @@ npm run dev
 Vite prints a local URL (default `http://localhost:5173`). On startup it invokes
 sbt once to link the Scala.js sources, then serves the app.
 
+### Configuring the API URL
+
+The frontend reads the API base URL from the Vite env var `VITE_API_BASE_URL`,
+defaulting to `http://localhost:9000` when it is unset. To point the app at a
+different API, copy `frontend/.env.example` to `frontend/.env` and set the value:
+
+```
+VITE_API_BASE_URL=https://your-api.example.com
+```
+
 ### Production build
 
 ```powershell

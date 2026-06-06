@@ -25,8 +25,6 @@ lazy val api = (project in file("api"))
   .settings(
     name := "fractala-api",
     Compile / run / fork := true,
-    // Use a lib/* classpath wildcard in the generated launcher scripts. Without this,
-    // the Windows .bat enumerates every jar and exceeds the 8191-char command-line limit.
     scriptClasspath := Seq("*"),
     libraryDependencies ++= Seq(
       // Tapir & Http4s

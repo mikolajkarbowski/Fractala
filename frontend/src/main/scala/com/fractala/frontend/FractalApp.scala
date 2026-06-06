@@ -9,8 +9,7 @@ object FractalApp:
   def main(args: Array[String]): Unit =
     dom.console.log("Fractala Frontend - Scala.js App Starting...")
 
-    val apiBaseUrl = "http://localhost:9000"
-    val apiService = new FractalApiService(apiBaseUrl)
+    val apiService = new FractalApiService(AppConfig.apiBaseUrl)
 
     val contentContainer = div(id := "app-content").render
 
