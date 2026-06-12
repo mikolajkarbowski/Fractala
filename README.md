@@ -74,8 +74,6 @@ Fractala uses a custom, human-readable Domain Specific Language (DSL) to define 
 | `Axiom` | The starting string (state) of the L-System. | **Yes** |
 | `Rules` | Defines how each symbol evolves into a new sequence. | **Yes** |
 
----
-
 ### Command Reference
 
 The following symbols control the "turtle" as it draws the fractal:
@@ -95,8 +93,6 @@ The following symbols control the "turtle" as it draws the fractal:
 | `(` / `)` | **Angle +/-**: Increments or decrements the turning angle. |
 | `@` | **Dot**: Draws a dot at the current position. |
 | `A-Z`, `0-9` | **Variable**: Structural placeholders used in rules (non-drawing). |
-
----
 
 ### Advanced Features
 
@@ -124,9 +120,7 @@ The `Config` block supports the following fields (all optional):
 | `lineWidthIncrement` | Amount to change width for `#` and `!`. | 1.0 |
 | `turningAngleIncrement` | Amount to change angle for `(` and `)`. | 15.0 |
 
----
-
-### Example: The Advanced Baobab
+### Example
 
 This example showcases stochastic rules, branching, and dynamic color changes to create a realistic tree structure.
 
@@ -171,7 +165,6 @@ Before you begin, ensure you have the following installed:
 - **sbt 1.x** (see `project/build.properties` for the pinned version).
 - **Node.js 18 or newer** (required for the frontend).
 
----
 
 ### Step 1: Start the API Server
 
@@ -195,8 +188,6 @@ If you are only working on the backend, you can run it directly via sbt:
 sbt "project api" run
 ```
 
----
-
 ### Step 2: Start the Frontend
 
 The frontend is a Scala.js application that communicates with the API.
@@ -215,8 +206,6 @@ The frontend is a Scala.js application that communicates with the API.
    ```
 
 Once started, Vite will provide a local URL (typically `http://localhost:5173`). Open it in your browser to start creating fractals!
-
----
 
 ### Advanced Configuration
 
