@@ -1,5 +1,28 @@
 # Fractala
 
+Fractala is a powerful, web-based fractal generator powered by **L-Systems**. It features a custom, human-readable DSL for defining fractal structures, supports stochastic (probabilistic) growth for organic patterns, and provides a real-time interactive editor.
+
+## Preview
+
+![Fractala Demo](docs/recording.mp4)
+
+### Showcase Gallery
+
+| Crystal Tree | Autumn Weed | Editor Examples |
+| :---: | :---: | :---: |
+| ![Crystal Tree](docs/crystal-tree.png) | ![Autumn Weed](docs/autumn-weed.png) | ![Examples](docs/examples.png) |
+
+---
+
+## Features
+
+- **Custom DSL**: A simple, type-safe language to define fractals.
+- **Stochastic Rules**: Add randomness to your fractals for more organic, "real-world" looks.
+- **Real-time Feedback**: See your changes immediately as you type.
+- **Robust Error Handling**: Clear feedback when your DSL code has syntax or logical errors.
+
+![Compilation Error Reporting](docs/compilation-error.png)
+
 ---
 
 ## Writing Fractals (The DSL)
