@@ -1,5 +1,11 @@
 # Fractala
 
+![Scala](https://img.shields.io/badge/scala-%23E32F26.svg?style=for-the-badge&logo=scala&logoColor=white)
+![Scala.js](https://img.shields.io/badge/scala.js-%23E32F26.svg?style=for-the-badge&logo=scala&logoColor=white)
+![Http4s](https://img.shields.io/badge/http4s-%23D22128.svg?style=for-the-badge&logo=scala&logoColor=white)
+![Cats Effect](https://img.shields.io/badge/cats--effect-%235D519E.svg?style=for-the-badge&logo=typelevel&logoColor=white)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+
 Fractala is a powerful, web-based fractal generator powered by **L-Systems**. It features a custom, human-readable DSL for defining fractal structures, supports stochastic (probabilistic) growth for organic patterns, and provides a real-time interactive editor.
 
 ## Preview
