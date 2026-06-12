@@ -6,7 +6,28 @@ Fractala is a powerful, web-based fractal generator powered by **L-Systems**. It
 
 ![Fractala Demo](./docs/recording.gif)
 
----
+## Showcase
+
+### Catalog of Examples
+
+![Examples](docs/examples.png)
+
+### Real-time Editor
+The interactive environment where you can write DSL code and see instant results.
+![Crystal Tree](docs/crystal-tree.png)
+
+![Autumn Weed](docs/autumn-weed.png)
+
+### Error Reporting
+Clear and concise feedback for DSL syntax and logical errors.
+![Compilation Error Reporting](docs/compilation-error.png)
+
+## Features
+
+- **Custom DSL**: A simple, type-safe language to define fractals.
+- **Stochastic Rules**: Add randomness to your fractals for more organic, "real-world" looks.
+- **Real-time Feedback**: See your changes immediately as you type.
+- **Robust Error Handling**: Clear feedback when your DSL code has syntax or logical errors.
 
 ## Tech Stack
 
@@ -28,38 +49,7 @@ Fractala is built with a modern functional stack leveraging the power of Scala a
 - **DOM Manipulation**: [Scala.js DOM](https://scala-js.github.io/scala-js-dom/) & [Scalatags](https://github.com/lihaoyi/scalatags)
 - **Styling**: Vanilla CSS
 
----
-
-## Showcase
-
-### Crystal Tree
-An example of organic growth using stochastic rules and custom colors.
-![Crystal Tree](docs/crystal-tree.png)
-
-### Autumn Weed
-Demonstrating complex branching patterns and iterative growth.
-![Autumn Weed](docs/autumn-weed.png)
-
-### Real-time Editor
-The interactive environment where you can write DSL code and see instant results.
-![Examples](docs/examples.png)
-
-### Error Reporting
-Clear and concise feedback for DSL syntax and logical errors.
-![Compilation Error Reporting](docs/compilation-error.png)
-
----
-
-## Features
-
-- **Custom DSL**: A simple, type-safe language to define fractals.
-- **Stochastic Rules**: Add randomness to your fractals for more organic, "real-world" looks.
-- **Real-time Feedback**: See your changes immediately as you type.
-- **Robust Error Handling**: Clear feedback when your DSL code has syntax or logical errors.
-
----
-
-## Writing Fractals (The DSL)
+## Writing Fractals (The DSL Syntax)
 
 Our custom DSL is designed to be:
 - human-readable
@@ -221,8 +211,6 @@ cd frontend
 npm run build
 npm run preview
 ```
-
----
 
 ## Contributors
 
