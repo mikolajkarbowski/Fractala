@@ -4,11 +4,7 @@ Fractala is a powerful, web-based fractal generator powered by **L-Systems**. It
 
 ## Preview
 
-<div align="center">
-  <video src="docs/recording.mp4" width="100%" controls>
-    Your browser does not support the video tag.
-  </video>
-</div>
+![Fractala Demo](./docs/recording.mp4)
 
 ---
 
@@ -225,3 +221,12 @@ cd frontend
 npm run build
 npm run preview
 ```
+
+---
+
+## Contributors
+
+- [Adam Gracikowski](https://github.com/adamgracikowski)
+- [Marcin Falkowski](https://github.com/xxmarcin007)
+- [Mikołaj Karbowski](https://github.com/mikolajkarbowski)
+- [Dominik Zieliński](https://github.com/xxxDKGxxx)
