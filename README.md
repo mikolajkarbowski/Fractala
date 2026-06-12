@@ -4,7 +4,7 @@ Fractala is a powerful, web-based fractal generator powered by **L-Systems**. It
 
 ## Preview
 
-![Fractala Demo](./docs/recording.mp4)
+![Fractala Demo](./docs/recording.gif)
 
 ---
 
