@@ -4,13 +4,53 @@ Fractala is a powerful, web-based fractal generator powered by **L-Systems**. It
 
 ## Preview
 
-![Fractala Demo](docs/recording.mp4)
+<div align="center">
+  <video src="docs/recording.mp4" width="100%" controls>
+    Your browser does not support the video tag.
+  </video>
+</div>
 
-### Showcase Gallery
+---
 
-| Crystal Tree | Autumn Weed | Editor Examples |
-| :---: | :---: | :---: |
-| ![Crystal Tree](docs/crystal-tree.png) | ![Autumn Weed](docs/autumn-weed.png) | ![Examples](docs/examples.png) |
+## Tech Stack
+
+Fractala is built with a modern functional stack leveraging the power of Scala across the entire system.
+
+### Core & Backend
+- **Language**: [Scala 3](https://www.scala-lang.org/)
+- **Effect System**: [Cats Effect 3](https://typelevel.org/cats-effect/)
+- **Web Server**: [Http4s](https://http4s.org/) (Ember)
+- **API Documentation**: [Tapir](https://tapir.softwaremill.com/) (with Swagger UI)
+- **JSON Library**: [Circe](https://circe.github.io/circe/)
+- **Parser**: [Fastparse](https://com-lihaoyi.github.io/fastparse/) (for the DSL)
+- **Linear Algebra**: [Breeze](https://github.com/scalanlp/breeze)
+- **Configuration**: [PureConfig](https://pureconfig.github.io/pureconfig/)
+
+### Frontend
+- **Language**: [Scala.js](https://www.scala-js.org/) (Scala 3)
+- **Bundler**: [Vite](https://vitejs.dev/)
+- **DOM Manipulation**: [Scala.js DOM](https://scala-js.github.io/scala-js-dom/) & [Scalatags](https://github.com/lihaoyi/scalatags)
+- **Styling**: Vanilla CSS
+
+---
+
+## Showcase
+
+### Crystal Tree
+An example of organic growth using stochastic rules and custom colors.
+![Crystal Tree](docs/crystal-tree.png)
+
+### Autumn Weed
+Demonstrating complex branching patterns and iterative growth.
+![Autumn Weed](docs/autumn-weed.png)
+
+### Real-time Editor
+The interactive environment where you can write DSL code and see instant results.
+![Examples](docs/examples.png)
+
+### Error Reporting
+Clear and concise feedback for DSL syntax and logical errors.
+![Compilation Error Reporting](docs/compilation-error.png)
 
 ---
 
@@ -20,8 +60,6 @@ Fractala is a powerful, web-based fractal generator powered by **L-Systems**. It
 - **Stochastic Rules**: Add randomness to your fractals for more organic, "real-world" looks.
 - **Real-time Feedback**: See your changes immediately as you type.
 - **Robust Error Handling**: Clear feedback when your DSL code has syntax or logical errors.
-
-![Compilation Error Reporting](docs/compilation-error.png)
 
 ---
 
