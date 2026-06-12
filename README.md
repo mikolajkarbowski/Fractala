@@ -40,178 +40,200 @@ Clear and concise feedback for DSL syntax and logical errors.
 Fractala is built with a modern functional stack leveraging the power of Scala across the entire system.
 
 ### Core & Backend
-- **Language**: [Scala 3](https://www.scala-lang.org/)
-- **Effect System**: [Cats Effect 3](https://typelevel.org/cats-effect/)
-- **Web Server**: [Http4s](https://http4s.org/) (Ember)
-- **API Documentation**: [Tapir](https://tapir.softwaremill.com/) (with Swagger UI)
-- **JSON Library**: [Circe](https://circe.github.io/circe/)
-- **Parser**: [Fastparse](https://com-lihaoyi.github.io/fastparse/) (for the DSL)
-- **Linear Algebra**: [Breeze](https://github.com/scalanlp/breeze)
-- **Configuration**: [PureConfig](https://pureconfig.github.io/pureconfig/)
+
+| Category | Technology |
+| :--- | :--- |
+| **Language** | [Scala 3](https://www.scala-lang.org/) |
+| **Effect System** | [Cats Effect 3](https://typelevel.org/cats-effect/) |
+| **Web Server** | [Http4s](https://http4s.org/) (Ember) |
+| **API Documentation** | [Tapir](https://tapir.softwaremill.com/) (with Swagger UI) |
+| **JSON Library** | [Circe](https://circe.github.io/circe/) |
+| **Parser** | [Fastparse](https://com-lihaoyi.github.io/fastparse/) (for the DSL) |
+| **Linear Algebra** | [Breeze](https://github.com/scalanlp/breeze) |
+| **Configuration** | [PureConfig](https://pureconfig.github.io/pureconfig/) |
 
 ### Frontend
-- **Language**: [Scala.js](https://www.scala-js.org/) (Scala 3)
-- **Bundler**: [Vite](https://vitejs.dev/)
-- **DOM Manipulation**: [Scala.js DOM](https://scala-js.github.io/scala-js-dom/) & [Scalatags](https://github.com/lihaoyi/scalatags)
-- **Styling**: Vanilla CSS
+
+| Category | Technology |
+| :--- | :--- |
+| **Language** | [Scala.js](https://www.scala-js.org/) (Scala 3) |
+| **Bundler** | [Vite](https://vitejs.dev/) |
+| **DOM Manipulation** | [Scala.js DOM](https://scala-js.github.io/scala-js-dom/) & [Scalatags](https://github.com/lihaoyi/scalatags) |
+| **Styling** | Vanilla CSS |
 
 ## Writing Fractals (The DSL Syntax)
 
-Our custom DSL is designed to be:
-- human-readable
-- order-independent
-- type-safe
+Fractala uses a custom, human-readable Domain Specific Language (DSL) to define L-Systems. The language is **case-insensitive** for keywords and **order-independent**, allowing you to structure your fractal definitions freely.
 
-A fractal definition consists of up to four blocks:
-- `Config`
-- `Colors`
-- `Axiom`
-- `Rules`
+### The Four Main Blocks
+
+| Block | Purpose | Required |
+| :--- | :--- | :---: |
+| `Config` | Defines rendering parameters like line length, angle, and iterations. | No |
+| `Colors` | Maps descriptive names to RGB values (0.0 - 1.0). | No |
+| `Axiom` | The starting string (state) of the L-System. | **Yes** |
+| `Rules` | Defines how each symbol evolves into a new sequence. | **Yes** |
 
 ---
 
-### Example 1: The Classic Colorful Plant
+### Command Reference
 
-This example demonstrates a standard deterministic L-System.
-Notice how colors are defined once in the `Colors` block and reused safely within the `Rules`.
+The following symbols control the "turtle" as it draws the fractal:
+
+| Symbol | Action |
+| :---: | :--- |
+| `F` | **Draw Forward**: Moves the turtle and draws a line. |
+| `f` | **Move Forward**: Moves the turtle without drawing a line. |
+| `+` | **Turn Left**: Rotates the turtle by the `turningAngle`. |
+| `-` | **Turn Right**: Rotates the turtle by the `turningAngle`. |
+| `[` | **Push State**: Saves the current position and angle on the stack (starts a branch). |
+| `]` | **Pop State**: Restores the last saved position and angle (ends a branch). |
+| `\|` | **Reverse**: Turns the turtle 180 degrees. |
+| `<color>` | **Change Color**: Switches the drawing color to one defined in the `Colors` block. |
+| `#` / `!` | **Width +/-**: Increments or decrements the line width. |
+| `>` / `<` | **Scale +/-**: Multiplies or divides the current line length. |
+| `(` / `)` | **Angle +/-**: Increments or decrements the turning angle. |
+| `@` | **Dot**: Draws a dot at the current position. |
+| `A-Z`, `0-9` | **Variable**: Structural placeholders used in rules (non-drawing). |
+
+---
+
+### Advanced Features
+
+#### 1. Stochastic Rules (Randomness)
+To create organic-looking fractals, you can assign weights to rules. When a symbol has multiple rules, the generator picks one based on its probability.
 
 ```plaintext
-// My Beautiful Fractal
+Rules {
+  F (0.4) -> F [ + F ] F
+  F (0.6) -> F [ - F ] F
+}
+```
+
+#### 2. Configuration Options
+The `Config` block supports the following fields (all optional):
+
+| Field | Description | Default |
+| :--- | :--- | :---: |
+| `lineLength` | The base length of each segment. | 10.0 |
+| `lineWidth` | The initial thickness of lines. | 1.0 |
+| `turningAngle` | The angle (in degrees) for `+` and `-` operations. | 45.0 |
+| `maxIterations` | How many times to apply the rules. | 4 |
+| `startingColor` | The name of the initial color from the `Colors` block. | white |
+| `lineLengthMultiplier`| Factor for `>` and `<` operations. | 2.0 |
+| `lineWidthIncrement` | Amount to change width for `#` and `!`. | 1.0 |
+| `turningAngleIncrement` | Amount to change angle for `(` and `)`. | 15.0 |
+
+---
+
+### Example: The Advanced Baobab
+
+This example showcases stochastic rules, branching, and dynamic color changes to create a realistic tree structure.
+
+```plaintext
 Config {
-  lineLength: 10.0
+  lineLength: 40.0
   lineWidth: 2.0
   turningAngle: 25.0
-  startingColor: stem
-  maxIterations: 5
+  lineLengthMultiplier: 0.75
+  lineWidthIncrement: 1.2
+  maxIterations: 6
+  startingColor: bark
 }
 
 Colors {
-  stem: 0.54, 0.27, 0.07  // Brown
-  leaf: 0.0, 1.0, 0.0     // Green
+  bark: 0.45, 0.30, 0.15
+  leaves: 0.25, 0.65, 0.30
 }
 
 Axiom: X
 
 Rules {
-  // X acts as a structural placeholder generating branches
-  X -> <stem> F [ + X ] [ - X ] + F
+  // Main growth rule with branching
+  X -> <bark> F [ + X ] [ - X ] + F [ - X ]
   
-  // F draws the actual lines and grows over time
-  F -> F F <leaf> [ + F ]
+  // Exponential trunk growth
+  F -> F F
+  
+  // 15% chance to sprout leaves instead of bark
+  X (0.15) -> <leaves> F [ + F ] [ - F ]
 }
 ```
+
+## Getting Started
+
+Follow these steps to get Fractala up and running on your local machine.
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+- **JDK 17 or newer** (e.g., [Temurin](https://adoptium.net/)).
+- **sbt 1.x** (see `project/build.properties` for the pinned version).
+- **Node.js 18 or newer** (required for the frontend).
+
 ---
 
-### Example 2: The Stochastic Magic Tree
+### Step 1: Start the API Server
 
-The parser is fully order-independent.
-You can put the Axiom at the top and Config at the bottom.
+The backend provides the fractal generation engine and catalog service. It runs on `http://localhost:9000` by default.
 
-This example also highlights stochastic rules — defining probabilities
-for how a symbol evolves, resulting in organic, randomized growth.
+#### Recommended: Standalone Launcher
+On Windows, two `sbt` processes cannot run in the same project simultaneously due to file locks. Since the frontend also uses `sbt`, we recommend running the API as a standalone process:
 
-```plaintext
-Axiom: F
+1. Build the launcher:
+   ```powershell
+   sbt "project api" stage
+   ```
+2. Run the generated script:
+   ```powershell
+   .\api\target\universal\stage\bin\fractala-api.bat
+   ```
 
-// Notice the weights in parentheses (e.g., 0.33 means 33% chance)
-Rules {
-  F (0.33) -> F [ + <bloom> F ] F
-  F (0.33) -> F [ - <bloom> F ] F
-  F (0.34) -> F <wood> F
-}
-
-Colors {
-  wood: 0.6, 0.4, 0.2
-  bloom: 1.0, 0.4, 0.7
-}
-
-// Config fields are case-insensitive and optional (defaults apply if omitted)
-CONFIG {
-  turningAngle: 22.5
-  maxIterations: 4
-}
-```
-
-## Running the API server
-
-For quick API-only work, run it straight from sbt:
-
-```ps1
+#### Alternative: Quick Start (API only)
+If you are only working on the backend, you can run it directly via sbt:
+```powershell
 sbt "project api" run
 ```
 
-The application uses **PureConfig** for configuration management. You can find the default settings in: `api/src/main/resources/application.conf`.
+---
 
-To override settings without changing the file, you can use environment variables:
+### Step 2: Start the Frontend
 
-**Windows (PowerShell):**
+The frontend is a Scala.js application that communicates with the API.
+
+1. Navigate to the frontend directory:
+   ```powershell
+   cd frontend
+   ```
+2. Install dependencies (first time only):
+   ```powershell
+   npm install
+   ```
+3. Start the development server:
+   ```powershell
+   npm run dev
+   ```
+
+Once started, Vite will provide a local URL (typically `http://localhost:5173`). Open it in your browser to start creating fractals!
+
+---
+
+### Advanced Configuration
+
+#### Customizing the API
+The backend uses **PureConfig**. Default settings are in `api/src/main/resources/application.conf`. You can override them using environment variables:
 ```powershell
 $env:SERVER_PORT="9000"; sbt "project api" run
 ```
 
-### Running the API as a standalone launcher (recommended for frontend work)
-
-On Windows, two `sbt` processes cannot run in the same project at once (they
-collide on a boot lock). Because the frontend dev server invokes `sbt` to link
-the Scala.js code, you cannot have `sbt "project api" run` going at the same time
-as `npm run dev`. To work on the frontend with a live API, run the API as a
-standalone launcher (a plain JVM process, no sbt):
-
-```powershell
-sbt "project api" stage          # build the launcher (re-run only when the API changes)
-.\api\target\universal\stage\bin\fractala-api.bat
-```
-
-The launcher reads the same `application.conf` and honours the same environment
-variables (e.g. `$env:SERVER_PORT="9000"`).
-
-## Running the Frontend
-
-The frontend is a [Scala.js](https://www.scala-js.org/) application bundled with
-[Vite](https://vitejs.dev/) via the [`@scala-js/vite-plugin-scalajs`](https://github.com/scala-js/vite-plugin-scalajs)
-plugin. Vite drives sbt for you, so you do not need to link the Scala.js output manually.
-
-### Prerequisites
-
-- **JDK 17 or newer** (e.g. [Temurin](https://adoptium.net/)).
-- **sbt 1.x** — see `project/build.properties` for the pinned version.
-- **Node.js 18 or newer** (ships with `npm`) — required only for the frontend.
-
-### First-time setup
-
-Install the Node dependencies (run once, from the `frontend/` directory):
-
-```powershell
-cd frontend
-npm install
-```
-
-### Development
-
-The frontend talks to the API at `http://localhost:9000`. Start the API as a
-**standalone launcher** (see "Running the API as a standalone launcher" above) so
-it doesn't conflict with the frontend's sbt usage, then in another terminal:
-
-```powershell
-cd frontend
-npm run dev
-```
-
-Vite prints a local URL (default `http://localhost:5173`). On startup it invokes
-sbt once to link the Scala.js sources, then serves the app.
-
-### Configuring the API URL
-
-The frontend reads the API base URL from the Vite env var `VITE_API_BASE_URL`,
-defaulting to `http://localhost:9000` when it is unset. To point the app at a
-different API, copy `frontend/.env.example` to `frontend/.env` and set the value:
-
-```
+#### Configuring the Frontend API URL
+By default, the frontend looks for the API at `http://localhost:9000`. To change this, create a `frontend/.env` file:
+```env
 VITE_API_BASE_URL=https://your-api.example.com
 ```
 
-### Production build
-
+#### Production Build
+To create a production-ready bundle of the frontend:
 ```powershell
 cd frontend
 npm run build
